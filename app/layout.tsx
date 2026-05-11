@@ -7,15 +7,15 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: {
-    default: "BYASHARA.COM — Electronics Wholesale Marketplace",
-    template: "%s | BYASHARA.COM",
+    default: "BOUTIQUE BYASHARA — Electronics Wholesale Marketplace",
+    template: "%s | BOUTIQUE BYASHARA",
   },
   description:
     "Rwanda & Eastern DRC's #1 wholesale electronics marketplace. Bulk smartphones, laptops, accessories and more. Order via WhatsApp instantly.",
   keywords: ["electronics wholesale", "Rwanda", "DRC", "bulk electronics", "smartphones", "laptops"],
   openGraph: {
     type: "website",
-    siteName: "BYASHARA.COM",
+    siteName: "BOUTIQUE BYASHARA",
   },
 };
 

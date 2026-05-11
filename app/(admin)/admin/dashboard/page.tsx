@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">BYASHARA.COM — Electronics Wholesale Analytics</p>
+          <p className="text-sm text-gray-500 mt-0.5">BOUTIQUE BYASHARA — Electronics Wholesale Analytics</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-3 py-1.5">

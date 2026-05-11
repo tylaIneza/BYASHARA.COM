@@ -21,8 +21,11 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const itemCount = useCartStore((s) => s.itemCount());
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -65,8 +68,7 @@ export function Navbar() {
                 <Zap className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="text-lg font-black tracking-tight text-white">BYASHARA</span>
-                <span className="text-[#FF6B00] text-lg font-black">.COM</span>
+                <span className="text-lg font-black tracking-tight text-white">BOUTIQUE <span className="text-[#FF6B00]">BYASHARA</span></span>
               </div>
             </Link>
 
@@ -114,7 +116,7 @@ export function Navbar() {
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="p-2 text-gray-300 hover:text-white rounded-lg hover:bg-white/10 transition-all"
               >
-                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                {mounted ? (theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Sun className="h-5 w-5" />}
               </button>
 
               {/* WhatsApp Cart */}

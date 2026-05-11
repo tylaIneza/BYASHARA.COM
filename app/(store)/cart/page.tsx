@@ -201,7 +201,7 @@ export default function CartPage() {
               <MessageCircle className="h-3.5 w-3.5" /> WhatsApp Order Preview
             </p>
             <div className="bg-[#DCF8C6] rounded-xl p-3 text-[11px] text-[#1a1a1a] leading-relaxed font-mono max-h-48 overflow-y-auto">
-              <p className="font-bold">🛒 BYASHARA.COM — Wholesale Order</p>
+              <p className="font-bold">🛒 BOUTIQUE BYASHARA — Wholesale Order</p>
               <p>━━━━━━━━━━━━━━</p>
               {customerName && <p>👤 Customer: {customerName}</p>}
               {province && <p>📍 Delivery: {province}</p>}

@@ -30,7 +30,7 @@ export function Footer() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-black text-white">BYASHARA<span className="text-[#FF6B00]">.COM</span></span>
+            <span className="text-lg font-black text-white">BOUTIQUE <span className="text-[#FF6B00]">BYASHARA</span></span>
           </div>
           <p className="text-sm text-gray-400 leading-relaxed">
             Rwanda & Eastern DRC&apos;s #1 electronics wholesale marketplace. Powering businesses with bulk tech.
@@ -98,7 +98,7 @@ export function Footer() {
       </div>
 
       <div className="border-t border-white/10 max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-        <p>© 2025 BYASHARA.COM — All rights reserved. Made in Rwanda 🇷🇼</p>
+        <p>© 2025 BOUTIQUE BYASHARA — All rights reserved. Made in Rwanda 🇷🇼</p>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy</Link>
           <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms</Link>

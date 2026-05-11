@@ -1,12 +1,16 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Bell, Search, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 
 export function AdminTopbar() {
+  const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between px-6 py-4 bg-[#0A0A0A]/90 backdrop-blur-sm border-b border-white/10">
@@ -23,7 +27,7 @@ export function AdminTopbar() {
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white border border-white/10 transition-all"
         >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {mounted ? (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />) : <Sun className="h-4 w-4" />}
         </button>
         <button className="relative p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white border border-white/10 transition-all">
           <Bell className="h-4 w-4" />

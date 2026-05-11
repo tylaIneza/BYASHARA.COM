@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
               <Zap className="h-7 w-7 text-white" />
             </div>
             <div>
-              <div className="text-2xl font-black text-white">BYASHARA<span className="text-white/70">.COM</span></div>
+              <div className="text-2xl font-black text-white">BOUTIQUE <span className="text-white/70">BYASHARA</span></div>
               <div className="text-xs text-white/70">Admin Portal</div>
             </div>
           </div>
@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
             ))}
           </div>
         </div>
-        <div className="relative text-white/50 text-xs">© 2025 BYASHARA.COM. Made in Rwanda 🇷🇼</div>
+        <div className="relative text-white/50 text-xs">© 2025 BOUTIQUE BYASHARA. Made in Rwanda 🇷🇼</div>
       </div>
 
       {/* Right panel */}
@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-black text-white">BYASHARA<span className="text-[#FF6B00]">.COM</span></span>
+            <span className="text-lg font-black text-white">BOUTIQUE <span className="text-[#FF6B00]">BYASHARA</span></span>
           </div>
 
           <h1 className="text-3xl font-black text-white mb-2">Admin Login</h1>

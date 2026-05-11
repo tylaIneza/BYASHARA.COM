@@ -49,7 +49,7 @@ export function generateWhatsAppMessage(
   customerName?: string
 ): string {
   const lines: string[] = [];
-  lines.push("🛒 *BYASHARA.COM — Wholesale Order*");
+  lines.push("🛒 *BOUTIQUE BYASHARA — Wholesale Order*");
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   if (customerName) lines.push(`👤 *Customer:* ${customerName}`);
   if (province) lines.push(`📍 *Delivery:* ${province}`);

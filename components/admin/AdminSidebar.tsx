@@ -36,7 +36,7 @@ export function AdminSidebar() {
           <Zap className="h-5 w-5 text-white" />
         </div>
         <div>
-          <span className="text-base font-black text-white">BYASHARA<span className="text-[#FF6B00]">.COM</span></span>
+          <span className="text-base font-black text-white">BOUTIQUE <span className="text-[#FF6B00]">BYASHARA</span></span>
           <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">Admin Portal</p>
         </div>
       </div>

@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding BYASHARA.COM database...");
+  console.log("🌱 Seeding BOUTIQUE BYASHARA database...");
 
   // Admin user
   const adminPassword = await bcrypt.hash("admin@123", 12);
@@ -13,7 +13,7 @@ async function main() {
     update: {},
     create: {
       email: "admin@byashara.com",
-      name: "BYASHARA Admin",
+      name: "Boutique Byashara Admin",
       password: adminPassword,
       role: "SUPER_ADMIN",
     },
@@ -101,12 +101,12 @@ async function main() {
       id: "default",
       whatsappNumber: "+250780000000",
       currency: "RWF",
-      siteName: "BYASHARA.COM",
+      siteName: "BOUTIQUE BYASHARA",
     },
   });
   console.log("✅ Site settings seeded");
 
-  console.log("\n🎉 BYASHARA.COM database seeded successfully!");
+  console.log("\n🎉 BOUTIQUE BYASHARA database seeded successfully!");
   console.log("\nCredentials:");
   console.log("  Admin: admin@byashara.com / admin@123");
   console.log("  Vendor: vendor@techkigali.com / vendor@123");

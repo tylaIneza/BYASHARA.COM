@@ -22,15 +22,15 @@ export function WhatsAppFloat() {
                 <MessageCircle className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">BYASHARA.COM Sales</p>
+                <p className="text-sm font-bold text-white">BOUTIQUE BYASHARA Sales</p>
                 <p className="text-[11px] text-green-400">● Online now</p>
               </div>
             </div>
             <p className="text-xs text-gray-400 mb-3 leading-relaxed">
-              Hello! 👋 Welcome to BYASHARA.COM. How can we help you with wholesale electronics today?
+              Hello! 👋 Welcome to BOUTIQUE BYASHARA. How can we help you with wholesale electronics today?
             </p>
             <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello! I'm interested in wholesale electronics from BYASHARA.COM")}`}
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello! I'm interested in wholesale electronics from BOUTIQUE BYASHARA")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl py-2.5 text-sm font-semibold transition-all"
