@@ -6,20 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number, currency = "RWF") {
-  if (currency === "RWF") {
-    return new Intl.NumberFormat("rw-RW", {
-      style: "currency",
-      currency: "RWF",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  }
+  // Use a fixed locale (en-US) so server and client produce identical strings.
+  // rw-RW is not available in Node.js and falls back differently than the browser.
+  const n = Math.round(amount);
+  const parts = n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   if (currency === "USD") {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
+    const usd = (amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return `$${usd}`;
   }
-  return `${currency} ${amount.toLocaleString()}`;
+  if (currency === "CDF") return `CDF ${parts}`;
+  return `RWF ${parts}`;
 }
 
 export function formatNumber(n: number) {

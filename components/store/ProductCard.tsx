@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingBag, MessageCircle, Star, Package, Zap, Eye } from "lucide-react";
+import { ShoppingBag, MessageCircle, Star, Package, Zap } from "lucide-react";
 import { formatCurrency, cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/cart-store";
 import toast from "react-hot-toast";
@@ -27,12 +27,9 @@ export interface ProductCardData {
   featured?: boolean;
 }
 
-interface ProductCardProps {
-  product: ProductCardData;
-  index?: number;
-}
+const WA_NUMBER = "+270788628417";
 
-export function ProductCard({ product, index = 0 }: ProductCardProps) {
+export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
   const [qty, setQty] = useState(product.moq);
   const [imageError, setImageError] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
@@ -52,22 +49,38 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       quantity: qty,
       imageUrl: product.imageUrl,
     });
-    toast.success(`${qty}× ${product.name} added to WhatsApp cart`);
+    toast.success(`${qty}× ${product.name} added to cart`, {
+      icon: "🛒",
+    });
   };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.preventDefault();
+    const waNum = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? WA_NUMBER;
     const msg = encodeURIComponent(
-      `Hi! I want to order:\n\n*${product.name}*\n• SKU: ${product.sku}\n• Quantity: ${qty} units\n• Price: ${formatCurrency(price, product.currency)} each\n• Total: ${formatCurrency(price * qty, product.currency)}\n\nPlease confirm availability.`
+      [
+        `🛒 *BOUTIQUE BYASHARA — Quick Order*`,
+        `━━━━━━━━━━━━━━━━━━`,
+        `📦 *${product.name}*`,
+        `• SKU: ${product.sku}`,
+        product.brand ? `• Brand: ${product.brand}` : "",
+        `• Quantity: ${qty} units`,
+        `• Unit Price: ${formatCurrency(price, product.currency)}`,
+        `• Total: ${formatCurrency(price * qty, product.currency)}`,
+        `━━━━━━━━━━━━━━━━━━`,
+        `Please confirm availability and delivery location.`,
+      ]
+        .filter(Boolean)
+        .join("\n")
     );
-    window.open(`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+    window.open(`https://wa.me/${waNum.replace(/\D/g, "")}?text=${msg}`, "_blank");
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, duration: 0.4 }}
+      transition={{ delay: index * 0.04, duration: 0.35 }}
       className="group relative"
     >
       <Link href={`/products/${product.slug}`}>
@@ -84,7 +97,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 -{discount}%
               </span>
             )}
-            {product.stock <= 10 && product.stock > 0 && (
+            {product.stock > 0 && product.stock <= 10 && (
               <span className="px-2 py-0.5 bg-amber-500/90 text-white text-[10px] font-bold rounded-full">
                 LOW STOCK
               </span>
@@ -96,15 +109,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             )}
           </div>
 
-          {/* Quick view */}
-          <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button className="p-2 glass rounded-xl border border-white/20 text-white hover:text-[#FF6B00] transition-colors">
-              <Eye className="h-4 w-4" />
-            </button>
-          </div>
-
           {/* Image */}
-          <div className="relative h-48 sm:h-56 bg-[#1A1A1A] overflow-hidden">
+          <div className="relative h-48 sm:h-52 bg-[#1A1A1A] overflow-hidden">
             {!imageError && product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -129,7 +135,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               {product.name}
             </h3>
 
-            {/* Rating + Sold */}
             <div className="flex items-center gap-2 mb-2">
               {(product.rating ?? 0) > 0 && (
                 <div className="flex items-center gap-1">
@@ -140,24 +145,20 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               {(product.soldCount ?? 0) > 0 && (
                 <span className="text-[11px] text-gray-500">{product.soldCount} sold</span>
               )}
-              {product.vendorName && (
-                <span className="text-[11px] text-gray-500 ml-auto truncate">{product.vendorName}</span>
-              )}
             </div>
 
             {/* Price */}
-            <div className="flex items-end gap-2 mb-3">
-              <span className="text-lg font-bold text-white">{formatCurrency(price, product.currency)}</span>
+            <div className="flex items-end gap-2 mb-2">
+              <span className="text-base font-bold text-white">{formatCurrency(price, product.currency)}</span>
               {product.salePrice && (
-                <span className="text-sm text-gray-500 line-through">{formatCurrency(product.price, product.currency)}</span>
+                <span className="text-xs text-gray-500 line-through">{formatCurrency(product.price, product.currency)}</span>
               )}
             </div>
 
             {/* MOQ */}
-            <div className="flex items-center gap-1.5 mb-3">
-              <Package className="h-3.5 w-3.5 text-gray-500" />
-              <span className="text-[11px] text-gray-500">Min. order: <span className="text-gray-300 font-medium">{product.moq} units</span></span>
-            </div>
+            <p className="text-[11px] text-gray-500 mb-3">
+              Min. order: <span className="text-gray-300 font-medium">{product.moq} units</span>
+            </p>
 
             {/* Qty selector */}
             <div className="flex items-center gap-2 mb-3">
@@ -172,10 +173,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                   className="px-3 py-1.5 text-gray-300 hover:bg-white/10 text-sm font-bold transition-colors"
                 >+</button>
               </div>
-              <span className="text-xs text-gray-500 flex-1 text-right">{formatCurrency(price * qty, product.currency)}</span>
+              <span className="text-xs text-[#FF6B00] font-semibold flex-1 text-right">
+                {formatCurrency(price * qty, product.currency)}
+              </span>
             </div>
 
-            {/* Action buttons */}
+            {/* Buttons */}
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={handleAddToCart}
@@ -191,7 +194,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               </button>
               <button
                 onClick={handleWhatsApp}
-                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold bg-[#25D366] hover:bg-[#128C7E] text-white transition-all"
+                disabled={product.stock === 0}
+                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold bg-[#25D366] hover:bg-[#128C7E] disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all"
               >
                 <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
               </button>

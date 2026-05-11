@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { Search, SlidersHorizontal, Grid3X3, List, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, SlidersHorizontal, Grid3X3, List, ChevronDown, ShoppingBag, MessageCircle, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { ProductCard, type ProductCardData } from "@/components/store/ProductCard";
+import { useCartStore } from "@/lib/cart-store";
+import { formatCurrency } from "@/lib/utils";
 
 const MOCK_PRODUCTS: ProductCardData[] = Array.from({ length: 24 }, (_, i) => ({
   id: `product-${i}`,
@@ -53,6 +56,10 @@ export default function ProductsPage() {
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [showFilters, setShowFilters] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const { itemCount, total } = useCartStore();
+  useEffect(() => setMounted(true), []);
 
   const filtered = MOCK_PRODUCTS.filter((p) => {
     if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
@@ -140,11 +147,56 @@ export default function ProductsPage() {
       </div>
 
       {/* Load more */}
-      <div className="text-center mt-12">
+      <div className="text-center mt-12 mb-24">
         <button className="btn-primary px-10 py-3 text-sm">
           Load More Products
         </button>
       </div>
+
+      {/* Sticky WhatsApp cart bar */}
+      <AnimatePresence>
+        {mounted && itemCount() > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4"
+          >
+            <div className="flex items-center justify-between gap-3 bg-[#111111] border border-[#FF6B00]/40 rounded-2xl px-5 py-3.5 shadow-2xl shadow-black/60 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <ShoppingBag className="h-6 w-6 text-[#FF6B00]" />
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6B00] text-[9px] font-bold text-white">
+                    {itemCount() > 99 ? "99+" : itemCount()}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 leading-none">
+                    {itemCount()} {itemCount() === 1 ? "item" : "items"} in cart
+                  </p>
+                  <p className="text-sm font-bold text-white leading-tight">{formatCurrency(total())}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/cart"
+                  className="flex items-center gap-1.5 bg-[#25D366] hover:bg-[#128C7E] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Order via WhatsApp
+                </Link>
+                <Link
+                  href="/cart"
+                  className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

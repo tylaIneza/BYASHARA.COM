@@ -25,7 +25,7 @@ export default function CartPage() {
   const [customerPhone, setCustomerPhone] = useState("");
   const [step, setStep] = useState<"cart" | "confirm">("cart");
 
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "+250780000000";
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "+270788628417";
 
   const handleOrderWhatsApp = () => {
     const msg = generateWhatsAppMessage(items, province, customerName);

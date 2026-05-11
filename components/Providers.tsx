@@ -2,10 +2,12 @@
 
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
+import { CartHydration } from "@/components/CartHydration";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <CartHydration />
       {children}
       <Toaster
         position="top-right"

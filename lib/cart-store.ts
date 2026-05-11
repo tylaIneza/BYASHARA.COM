@@ -47,6 +47,10 @@ export const useCartStore = create<CartStore>()(
       total: () => get().items.reduce((s, i) => s + i.price * i.quantity, 0),
       itemCount: () => get().items.reduce((s, i) => s + i.quantity, 0),
     }),
-    { name: "byashara-cart" }
+    {
+      name: "boutique-byashara-cart",
+      // skipHydration prevents SSR/client mismatch — rehydrate manually in CartHydration
+      skipHydration: true,
+    }
   )
 );

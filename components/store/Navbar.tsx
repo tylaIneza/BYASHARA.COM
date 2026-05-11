@@ -122,7 +122,7 @@ export function Navbar() {
               {/* WhatsApp Cart */}
               <Link href="/cart" className="relative p-2 text-gray-300 hover:text-white">
                 <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
+                {mounted && itemCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
