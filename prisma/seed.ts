@@ -99,7 +99,7 @@ async function main() {
     update: {},
     create: {
       id: "default",
-      whatsappNumber: "+270788628417",
+      whatsappNumber: "+250788628417",
       currency: "RWF",
       siteName: "BOUTIQUE BYASHARA",
     },

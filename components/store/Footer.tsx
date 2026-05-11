@@ -12,7 +12,7 @@ export function Footer() {
             <p className="text-gray-400 text-sm mt-1">Talk to our sales team on WhatsApp — instant quotes, bulk pricing.</p>
           </div>
           <a
-            href="https://wa.me/270788628417"
+            href="https://wa.me/250788628417"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl px-6 py-3 font-bold text-sm transition-all hover:shadow-lg hover:shadow-green-500/20 animate-glow shrink-0"

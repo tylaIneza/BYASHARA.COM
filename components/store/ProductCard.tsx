@@ -27,7 +27,7 @@ export interface ProductCardData {
   featured?: boolean;
 }
 
-const WA_NUMBER = "+270788628417";
+const WA_NUMBER = "+250788628417";
 
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
   const [qty, setQty] = useState(product.moq);
