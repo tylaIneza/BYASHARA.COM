@@ -35,6 +35,8 @@ export default function CartPage() {
   const addOrder = useOrderStore((s) => s.addOrder);
   const [province, setProvince] = useState("");
   const [customerName, setCustomerName] = useState("");
+  const [touched, setTouched] = useState(false);
+  const [shake, setShake] = useState(false);
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "+250788628417";
 
@@ -55,7 +57,12 @@ export default function CartPage() {
   const canOrder = !missingName && !missingLocation && !retailBlockedByLocation;
 
   const handleOrderWhatsApp = () => {
-    if (!canOrder) return;
+    setTouched(true);
+    if (!canOrder) {
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
+      return;
+    }
     const adjustedItems = items.map((i) => ({
       ...i,
       price: effectiveUnitPrice(i.price, i.quantity),
@@ -316,29 +323,29 @@ export default function CartPage() {
             </div>
 
             {/* Customer info */}
-            <div className="space-y-3 mb-4">
+            <div className={`space-y-3 mb-4 ${shake ? "animate-shake" : ""}`}>
               <div className="relative">
-                <User className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${missingName ? "text-red-400" : "text-gray-500"}`} />
+                <User className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${touched && missingName ? "text-red-400" : "text-gray-500"}`} />
                 <input
                   type="text"
-                  placeholder="Your name *"
+                  placeholder="Your full name *"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   className={`w-full bg-white/5 border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none transition-colors ${
-                    missingName ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-[#FF6B00]/50"
+                    touched && missingName ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-[#FF6B00]/50"
                   }`}
                 />
-                {missingName && (
-                  <p className="text-[10px] text-red-400 mt-1 ml-1">Name is required</p>
+                {touched && missingName && (
+                  <p className="text-[10px] text-red-400 mt-1 ml-1">⚠ Full name is required to send your order</p>
                 )}
               </div>
               <div className="relative">
-                <MapPin className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${missingLocation ? "text-red-400" : "text-gray-500"}`} />
+                <MapPin className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${touched && missingLocation ? "text-red-400" : "text-gray-500"}`} />
                 <select
                   value={province}
                   onChange={(e) => setProvince(e.target.value)}
                   className={`w-full bg-[#1A1A1A] border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white appearance-none focus:outline-none cursor-pointer transition-colors ${
-                    missingLocation ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-[#FF6B00]/50"
+                    touched && missingLocation ? "border-red-500/50 focus:border-red-500" : "border-white/10 focus:border-[#FF6B00]/50"
                   }`}
                 >
                   <option value="">Select delivery location *</option>
@@ -349,8 +356,8 @@ export default function CartPage() {
                     {PROVINCES.slice(5).map((p) => <option key={p}>{p}</option>)}
                   </optgroup>
                 </select>
-                {missingLocation && (
-                  <p className="text-[10px] text-red-400 mt-1 ml-1">Delivery location is required</p>
+                {touched && missingLocation && (
+                  <p className="text-[10px] text-red-400 mt-1 ml-1">⚠ Delivery location is required to send your order</p>
                 )}
               </div>
             </div>
@@ -358,24 +365,23 @@ export default function CartPage() {
             {/* WhatsApp order button */}
             <button
               onClick={handleOrderWhatsApp}
-              disabled={!canOrder}
               className={`w-full flex items-center justify-center gap-2 font-bold py-4 rounded-xl text-base transition-all ${
                 canOrder
                   ? "bg-[#25D366] hover:bg-[#128C7E] text-white hover:shadow-lg hover:shadow-green-500/20"
-                  : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                  : "bg-[#25D366]/60 hover:bg-[#25D366]/70 text-white cursor-pointer"
               }`}
             >
               <MessageCircle className="h-5 w-5" />
               Order via WhatsApp
             </button>
 
-            {(missingName || missingLocation) && (
-              <p className="text-[11px] text-red-400 text-center mt-2 leading-relaxed">
+            {touched && (missingName || missingLocation) && (
+              <p className="text-[11px] text-red-400 text-center mt-2 leading-relaxed font-medium">
                 {missingName && missingLocation
-                  ? "Please enter your name and select a delivery location."
+                  ? "⚠ Please enter your name and select a delivery location."
                   : missingName
-                  ? "Please enter your name to continue."
-                  : "Please select a delivery location to continue."}
+                  ? "⚠ Please enter your name to continue."
+                  : "⚠ Please select a delivery location to continue."}
               </p>
             )}
 

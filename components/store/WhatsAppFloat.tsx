@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 export function WhatsAppFloat() {
   const [open, setOpen] = useState(false);
@@ -29,15 +30,14 @@ export function WhatsAppFloat() {
             <p className="text-xs text-gray-400 mb-3 leading-relaxed">
               Hello! 👋 Welcome to BYASHARA STORE. How can we help you with wholesale electronics today?
             </p>
-            <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello! I'm interested in wholesale electronics from BYASHARA STORE")}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/cart"
+              onClick={() => setOpen(false)}
               className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl py-2.5 text-sm font-semibold transition-all"
             >
               <MessageCircle className="h-4 w-4" />
               Start Chat on WhatsApp
-            </a>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

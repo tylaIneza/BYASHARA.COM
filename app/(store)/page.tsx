@@ -199,13 +199,12 @@ export default function HomePage() {
           <p className="text-gray-400 text-sm mb-6 max-w-lg mx-auto leading-relaxed">
             No account. No password. Browse, select quantity, click WhatsApp — your order is auto-generated and sent instantly.
           </p>
-          <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "250788628417"}`}
-            target="_blank" rel="noopener noreferrer"
+          <Link
+            href="/cart"
             className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold px-8 py-3.5 rounded-2xl text-sm transition-all hover:shadow-lg hover:shadow-green-500/20"
           >
             <MessageCircle className="h-5 w-5" /> Start Ordering on WhatsApp
-          </a>
+          </Link>
         </motion.div>
       </section>
     </div>

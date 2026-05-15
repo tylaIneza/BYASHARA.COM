@@ -131,14 +131,12 @@ export function Navbar() {
               </Link>
 
               {/* WhatsApp button */}
-              <a
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/cart"
                 className="hidden md:flex items-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl px-4 py-2 text-sm font-semibold transition-all"
               >
                 <MessageCircle className="h-4 w-4" /> WhatsApp
-              </a>
+              </Link>
 
               {/* Mobile menu */}
               <button
@@ -174,9 +172,9 @@ export function Navbar() {
                 <hr className="border-white/10 my-2" />
                 <Link href="/products" className="block py-2.5 px-4 text-sm text-gray-300 hover:text-white rounded-xl" onClick={() => setMenuOpen(false)}>All Products</Link>
                 <Link href="/flash-sales" className="block py-2.5 px-4 text-sm text-[#FF6B00] font-semibold rounded-xl" onClick={() => setMenuOpen(false)}>⚡ Flash Sales</Link>
-                <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`} className="flex items-center gap-2 py-2.5 px-4 text-sm text-[#25D366] font-semibold rounded-xl">
+                <Link href="/cart" className="flex items-center gap-2 py-2.5 px-4 text-sm text-[#25D366] font-semibold rounded-xl" onClick={() => setMenuOpen(false)}>
                   <MessageCircle className="h-4 w-4" /> Order via WhatsApp
-                </a>
+                </Link>
               </div>
             </motion.div>
           )}

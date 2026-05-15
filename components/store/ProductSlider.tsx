@@ -249,15 +249,13 @@ export function ProductSlider() {
           <span className="text-[11px] text-gray-500 hidden sm:inline">
             {index + 1} / {total}
           </span>
-          <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "250788628417"}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/cart"
             className="flex items-center gap-1.5 bg-[#25D366] hover:bg-[#128C7E] text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all"
           >
             <MessageCircle className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Order via</span> WhatsApp
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -324,13 +322,12 @@ function FallbackBanner() {
             <Link href="/products" className="btn-primary flex items-center gap-2 px-6 py-3 text-sm">
               Browse Products <ArrowRight className="h-4 w-4" />
             </Link>
-            <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "250788628417"}`}
-              target="_blank" rel="noopener noreferrer"
+            <Link
+              href="/cart"
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#128C7E] text-white font-semibold text-sm transition-all"
             >
               <MessageCircle className="h-4 w-4" /> Order via WhatsApp
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -67,24 +67,15 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.preventDefault();
-    const waNum = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? WA_NUMBER;
-    const msg = encodeURIComponent(
-      [
-        `🛒 *BYASHARA STORE — Quick Order*`,
-        `━━━━━━━━━━━━━━━━━━`,
-        `📦 *${product.name}*`,
-        `• SKU: ${product.sku}`,
-        product.brand ? `• Brand: ${product.brand}` : "",
-        `• Quantity: ${qty} units`,
-        `• Unit Price: ${fmt(price, product.currency)}`,
-        `• Total: ${fmt(price * qty, product.currency)}`,
-        `━━━━━━━━━━━━━━━━━━`,
-        `Please confirm availability and delivery location.`,
-      ]
-        .filter(Boolean)
-        .join("\n")
-    );
-    window.open(`https://wa.me/${waNum.replace(/\D/g, "")}?text=${msg}`, "_blank");
+    addItem({
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      price,
+      quantity: qty,
+      imageUrl: product.imageUrl,
+    });
+    window.location.href = "/cart";
   };
 
   return (
@@ -208,7 +199,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                 disabled={product.stock === 0}
                 className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold bg-[#25D366] hover:bg-[#128C7E] disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all"
               >
-                <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                <MessageCircle className="h-3.5 w-3.5" /> Order Now
               </button>
             </div>
           </div>
