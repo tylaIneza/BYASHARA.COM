@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, Grid3X3, List, ChevronDown, ShoppingBag, MessageCircle, ArrowRight } from "lucide-react";
@@ -20,6 +20,14 @@ const SORT_OPTIONS = [
 ];
 
 export default function ProductsPage() {
+  return (
+    <Suspense>
+      <ProductsContent />
+    </Suspense>
+  );
+}
+
+function ProductsContent() {
   const searchParams = useSearchParams();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [sort, setSort] = useState("newest");
