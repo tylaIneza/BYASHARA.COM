@@ -9,6 +9,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { ProductCard, type ProductCardData } from "@/components/store/ProductCard";
+import { ProductSlider } from "@/components/store/ProductSlider";
 import { useProductStore } from "@/lib/product-store";
 import { useCurrencyStore } from "@/lib/currency-store";
 import { useCategoryStore } from "@/lib/category-store";
@@ -40,6 +41,9 @@ export default function HomePage() {
 
   return (
     <div>
+      {/* Product Slider */}
+      <ProductSlider />
+
       {/* Compact Hero */}
       <section className="relative py-10 sm:py-14 overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,107,0,0.12)_0%,_transparent_55%)]" />
