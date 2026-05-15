@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import {
   Zap, LayoutDashboard, Package, Users, ShoppingBag,
   MessageCircle, BarChart2, Truck, Tag, Settings,
-  Store, Bell, ChevronRight, Warehouse, LogOut,
+  Store, Bell, ChevronRight, Warehouse, LogOut, UsersRound, Layers,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Products", href: "/admin/products", icon: Package },
+  { label: "Categories", href: "/admin/categories", icon: Layers },
   { label: "Vendors", href: "/admin/vendors", icon: Store },
   { label: "WhatsApp Orders", href: "/admin/orders", icon: MessageCircle },
   { label: "Customers", href: "/admin/customers", icon: Users },
@@ -21,6 +22,7 @@ const NAV = [
   { label: "Warehouse", href: "/admin/warehouse", icon: Warehouse },
   { label: "Flash Sales", href: "/admin/flash-sales", icon: Tag },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart2 },
+  { label: "Team", href: "/admin/team", icon: UsersRound },
   { label: "Notifications", href: "/admin/notifications", icon: Bell },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];

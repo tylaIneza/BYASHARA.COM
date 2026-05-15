@@ -42,31 +42,44 @@ export function generateOrderNumber() {
 export function generateWhatsAppMessage(
   items: CartItem[],
   province?: string,
-  customerName?: string
+  customerName?: string,
+  transportFee?: number
 ): string {
+  const hasRetail = items.some((i) => i.isRetail);
+  const orderType = hasRetail ? "Retail Order" : "Wholesale Order";
   const lines: string[] = [];
-  lines.push("🛒 *BOUTIQUE BYASHARA — Wholesale Order*");
+  lines.push(`🛒 *BOUTIQUE BYASHARA — ${orderType}*`);
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   if (customerName) lines.push(`👤 *Customer:* ${customerName}`);
   if (province) lines.push(`📍 *Delivery:* ${province}`);
+  if (hasRetail) lines.push(`🏪 *Pricing:* Retail (single-unit purchase)`);
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   lines.push("📦 *Products:*");
 
-  let total = 0;
+  let subtotal = 0;
   items.forEach((item, i) => {
     const itemTotal = item.price * item.quantity;
-    total += itemTotal;
+    subtotal += itemTotal;
     lines.push(`\n${i + 1}. *${item.name}*`);
     if (item.variant) lines.push(`   • Variant: ${item.variant}`);
     lines.push(`   • SKU: ${item.sku || "N/A"}`);
-    lines.push(`   • Qty: ${item.quantity} units`);
-    lines.push(`   • Unit Price: ${formatCurrency(item.price)}`);
+    lines.push(`   • Qty: ${item.quantity} unit${item.quantity > 1 ? "s" : ""}`);
+    lines.push(`   • Unit Price: ${formatCurrency(item.price)}${item.isRetail ? " _(retail)_" : ""}`);
     lines.push(`   • Subtotal: ${formatCurrency(itemTotal)}`);
-    if (item.imageUrl) lines.push(`   🖼️ ${item.imageUrl}`);
   });
 
   lines.push("\n━━━━━━━━━━━━━━━━━━━━━");
-  lines.push(`💰 *Total: ${formatCurrency(total)}*`);
+  if (transportFee && transportFee > 0) {
+    lines.push(`📦 *Subtotal: ${formatCurrency(subtotal)}*`);
+    lines.push(`🚚 *Transport Fee: ${formatCurrency(transportFee)}*`);
+    lines.push(`💰 *Grand Total: ${formatCurrency(subtotal + transportFee)}*`);
+  } else {
+    lines.push(`💰 *Total: ${formatCurrency(subtotal)}*`);
+  }
+  lines.push("━━━━━━━━━━━━━━━━━━━━━");
+  lines.push("💳 *Payment via MTN MoMo:*");
+  lines.push("   📱 Number: +250 788 628 417");
+  lines.push("   👤 Name: Ineza Pacifique");
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   lines.push("📞 Please confirm this order. Thank you!");
 
@@ -81,4 +94,5 @@ export type CartItem = {
   quantity: number;
   variant?: string;
   imageUrl?: string;
+  isRetail?: boolean;
 };

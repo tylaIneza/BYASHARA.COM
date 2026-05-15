@@ -3,26 +3,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Plus, Search, Filter, MoreHorizontal, Edit, Trash2,
-  Eye, Package, CheckCircle2, Clock, XCircle, Star, Upload,
+  Plus, Search, Edit, Trash2,
+  Package, Star, Upload, CheckCircle2, XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
-
-const MOCK_PRODUCTS = Array.from({ length: 20 }, (_, i) => ({
-  id: `prod-${i}`,
-  name: ["Samsung Galaxy S24 Ultra", "iPhone 15 Pro Max", "HP EliteBook 840", "JBL Charge 5", "Samsung 65\" QLED", "Hikvision 4MP Camera", "TP-Link Deco X68"][i % 7],
-  sku: `SKU-${String(i + 1).padStart(4, "0")}`,
-  brand: ["Samsung", "Apple", "HP", "JBL", "LG", "Hikvision", "TP-Link"][i % 7],
-  category: ["Smartphones", "Smartphones", "Laptops", "Audio", "TVs", "CCTV", "Networking"][i % 7],
-  price: [890000, 1200000, 980000, 180000, 750000, 150000, 280000][i % 7],
-  stock: i % 5 === 0 ? 0 : 50 + i * 7,
-  status: ["ACTIVE", "ACTIVE", "PENDING", "DRAFT", "ACTIVE", "REJECTED"][i % 6] as "ACTIVE" | "PENDING" | "DRAFT" | "REJECTED",
-  vendor: ["TechRwanda Ltd", "KigaliElec", "Digital Hub"][i % 3],
-  featured: i % 4 === 0,
-  moq: [1, 5, 10, 2][i % 4],
-  soldCount: i * 23,
-}));
+import { useProductStore } from "@/lib/product-store";
 
 const STATUS_CONFIG = {
   ACTIVE: { label: "Active", color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/20" },
@@ -32,11 +18,12 @@ const STATUS_CONFIG = {
 };
 
 export default function AdminProductsPage() {
+  const { products, updateProduct, deleteProduct } = useProductStore();
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const filtered = MOCK_PRODUCTS.filter((p) => {
+  const filtered = products.filter((p) => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (statusFilter !== "ALL" && p.status !== statusFilter) return false;
     return true;
@@ -51,7 +38,7 @@ export default function AdminProductsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">Products</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{MOCK_PRODUCTS.length} total products</p>
+          <p className="text-sm text-gray-500 mt-0.5">{products.length} total products</p>
         </div>
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 px-4 py-2.5 border border-white/10 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-all">
@@ -105,7 +92,15 @@ export default function AdminProductsPage() {
           <span className="text-sm text-[#FF6B00] font-semibold">{selected.length} selected</span>
           <div className="flex items-center gap-2 ml-auto">
             <button className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-medium">Approve All</button>
-            <button className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-medium">Delete All</button>
+            <button
+              onClick={() => {
+                if (confirm(`Delete ${selected.length} products? This cannot be undone.`)) {
+                  selected.forEach((id) => deleteProduct(id));
+                  setSelected([]);
+                }
+              }}
+              className="px-3 py-1.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-medium"
+            >Delete All</button>
           </div>
         </motion.div>
       )}
@@ -119,7 +114,7 @@ export default function AdminProductsPage() {
                 <th className="text-left px-5 py-3.5">
                   <input
                     type="checkbox"
-                    onChange={(e) => setSelected(e.target.checked ? MOCK_PRODUCTS.map((p) => p.id) : [])}
+                    onChange={(e) => setSelected(e.target.checked ? products.map((p) => p.id) : [])}
                     className="rounded accent-[#FF6B00]"
                   />
                 </th>
@@ -153,8 +148,12 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-[#1A1A1A] border border-white/10 flex items-center justify-center shrink-0">
-                          <Package className="h-5 w-5 text-gray-600" />
+                        <div className="h-10 w-10 rounded-xl bg-[#1A1A1A] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                          {product.imageUrl
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={product.imageUrl} alt="" className="w-full h-full object-cover" />
+                            : <Package className="h-5 w-5 text-gray-600" />
+                          }
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-white group-hover:text-[#FF6B00] transition-colors">{product.name}</p>
@@ -188,13 +187,36 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-1.5">
-                        <button className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/10 transition-all">
-                          <Eye className="h-3.5 w-3.5" />
-                        </button>
+                        {product.status !== "ACTIVE" && (
+                          <button
+                            onClick={() => updateProduct(product.id, { status: "ACTIVE" })}
+                            title="Approve"
+                            className="p-1.5 rounded-lg text-gray-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                        {product.status === "ACTIVE" && (
+                          <button
+                            onClick={() => updateProduct(product.id, { status: "DRAFT" })}
+                            title="Deactivate"
+                            className="p-1.5 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all"
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                          </button>
+                        )}
                         <Link href={`/admin/products/${product.id}/edit`} className="p-1.5 rounded-lg text-gray-500 hover:text-[#FF6B00] hover:bg-[#FF6B00]/10 transition-all">
                           <Edit className="h-3.5 w-3.5" />
                         </Link>
-                        <button className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                        <button
+                          onClick={() => {
+                            if (confirm(`Delete "${product.name}"? This cannot be undone.`)) {
+                              deleteProduct(product.id);
+                            }
+                          }}
+                          title="Delete"
+                          className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                        >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>

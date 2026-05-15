@@ -15,20 +15,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-          include: { vendor: true },
-        });
-        if (!user) return null;
-        const valid = await bcrypt.compare(credentials.password as string, user.password);
-        if (!valid) return null;
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          vendorId: user.vendor?.id ?? null,
-        };
+
+        // Env-var fallback admin (works without a database)
+        const envEmail = process.env.ADMIN_EMAIL ?? "admin@byashara.com";
+        const envPassword = process.env.ADMIN_PASSWORD ?? "admin@123";
+        if (
+          credentials.email === envEmail &&
+          credentials.password === envPassword
+        ) {
+          return {
+            id: "admin-root",
+            email: envEmail,
+            name: "Boutique Byashara Admin",
+            role: "SUPER_ADMIN",
+            vendorId: null,
+          };
+        }
+
+        // Database lookup
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
+            include: { vendor: true },
+          });
+          if (!user) return null;
+          const valid = await bcrypt.compare(credentials.password as string, user.password);
+          if (!valid) return null;
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            vendorId: user.vendor?.id ?? null,
+          };
+        } catch {
+          return null;
+        }
       },
     }),
   ],

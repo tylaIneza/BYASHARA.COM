@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Zap, MessageCircle, Phone, Mail, MapPin, Instagram, Facebook, Twitter } from "lucide-react";
+import { useCategoryStore } from "@/lib/category-store";
 
 export function Footer() {
+  const { categories, hydrated: catHydrated } = useCategoryStore();
   return (
     <footer className="bg-[#0A0A0A] border-t border-white/10 mt-20">
       {/* WhatsApp CTA */}
@@ -46,10 +50,10 @@ export function Footer() {
         <div>
           <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-widest">Categories</h4>
           <ul className="space-y-2">
-            {["Smartphones", "Laptops", "Accessories", "TVs", "Gaming", "Networking", "CCTV", "Solar"].map((c) => (
-              <li key={c}>
-                <Link href={`/categories/${c.toLowerCase()}`} className="text-sm text-gray-400 hover:text-[#FF6B00] transition-colors">
-                  {c}
+            {catHydrated && categories.slice(0, 8).map((cat) => (
+              <li key={cat.id}>
+                <Link href={`/products?cat=${encodeURIComponent(cat.name)}`} className="text-sm text-gray-400 hover:text-[#FF6B00] transition-colors">
+                  {cat.name}
                 </Link>
               </li>
             ))}

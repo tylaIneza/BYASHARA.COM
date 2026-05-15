@@ -7,34 +7,9 @@ import { Search, SlidersHorizontal, Grid3X3, List, ChevronDown, ShoppingBag, Mes
 import Link from "next/link";
 import { ProductCard, type ProductCardData } from "@/components/store/ProductCard";
 import { useCartStore } from "@/lib/cart-store";
+import { useProductStore } from "@/lib/product-store";
+import { useCategoryStore } from "@/lib/category-store";
 import { formatCurrency } from "@/lib/utils";
-
-const MOCK_PRODUCTS: ProductCardData[] = Array.from({ length: 24 }, (_, i) => ({
-  id: `product-${i}`,
-  name: [
-    "Samsung Galaxy S24 Ultra 512GB", "Apple iPhone 15 Pro Max", "Xiaomi 14 Pro 256GB",
-    "HP EliteBook 840 G10 i7", "Dell XPS 15 Intel Core Ultra", "Lenovo ThinkPad X1 Carbon",
-    "Sony WH-1000XM5 Headphones", "JBL Charge 5 Bluetooth Speaker", "Apple AirPods Pro 2nd Gen",
-    "Samsung 65\" QLED 4K TV", "LG 55\" OLED Smart TV", "TCL 75\" 4K Android TV",
-    "CCTV 8CH 2MP POE Kit", "Hikvision 4MP IP Camera", "Dahua NVR 16CH Kit",
-    "TP-Link Deco Mesh WiFi 6", "Cisco RV340 Router", "Ubiquiti UniFi 6 Pro AP",
-    "Anker 65W GaN Charger", "Xiaomi 33W Power Bank 20000mAh", "Belkin 15W Wireless Charger",
-    "Samsung Galaxy Watch 6", "Garmin Fenix 7", "Apple Watch Series 9",
-  ][i % 24],
-  slug: `product-${i}-slug`,
-  sku: `SKU-${String(i + 1).padStart(4, "0")}`,
-  brand: ["Samsung", "Apple", "Xiaomi", "HP", "Dell", "JBL", "Sony", "LG", "TP-Link", "Anker"][i % 10],
-  moq: [1, 2, 5, 10, 20][i % 5],
-  stock: i % 7 === 0 ? 0 : i % 5 === 0 ? 5 : 100 + i,
-  imageUrl: undefined,
-  price: [450000, 890000, 650000, 1200000, 1500000, 280000, 350000, 180000, 95000, 750000][i % 10],
-  salePrice: i % 4 === 0 ? [400000, 750000, 580000][i % 3] : undefined,
-  currency: "RWF",
-  vendorName: ["TechRwanda Ltd", "KigaliElec", "Digital Hub", "AfriTech"][i % 4],
-  rating: 3.5 + (i % 15) * 0.1,
-  soldCount: 50 + i * 12,
-  featured: i % 6 === 0,
-}));
 
 const SORT_OPTIONS = [
   { label: "Newest", value: "newest" },
@@ -42,11 +17,6 @@ const SORT_OPTIONS = [
   { label: "Price: High to Low", value: "price-desc" },
   { label: "Best Selling", value: "popular" },
   { label: "Top Rated", value: "rating" },
-];
-
-const CATEGORIES_FILTER = [
-  "All", "Smartphones", "Laptops", "Audio", "TVs", "CCTV",
-  "Networking", "Accessories", "Gaming", "Solar", "Smart Home",
 ];
 
 export default function ProductsPage() {
@@ -59,10 +29,37 @@ export default function ProductsPage() {
   const [mounted, setMounted] = useState(false);
 
   const { itemCount, total } = useCartStore();
+  const { products: storeProducts } = useProductStore();
+  const { categories, hydrated: catHydrated } = useCategoryStore();
   useEffect(() => setMounted(true), []);
 
-  const filtered = MOCK_PRODUCTS.filter((p) => {
+  // Map store products to ProductCardData shape; only show ACTIVE products
+  const allProducts: ProductCardData[] = storeProducts
+    .filter((p) => p.status === "ACTIVE")
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      sku: p.sku,
+      brand: p.brand,
+      moq: p.moq,
+      stock: p.stock,
+      imageUrl: p.imageUrl,
+      price: p.price,
+      salePrice: p.salePrice,
+      currency: p.currency,
+      vendorName: p.vendor,
+      rating: p.rating,
+      soldCount: p.soldCount,
+      featured: p.featured,
+    }));
+
+  const filtered = allProducts.filter((p) => {
     if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
+    if (category !== "All") {
+      const sp = storeProducts.find((x) => x.id === p.id);
+      if (sp && sp.category !== category) return false;
+    }
     return true;
   });
 
@@ -74,6 +71,7 @@ export default function ProductsPage() {
           All <span className="text-gradient">Electronics</span>
         </h1>
         <p className="text-gray-400 text-sm">{filtered.length} products available for wholesale</p>
+
       </div>
 
       {/* Search + controls */}
@@ -124,17 +122,27 @@ export default function ProductsPage() {
 
       {/* Category tabs */}
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1">
-        {CATEGORIES_FILTER.map((cat) => (
+        <button
+          onClick={() => setCategory("All")}
+          className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            category === "All"
+              ? "bg-[#FF6B00] text-white"
+              : "bg-[#111111] border border-white/10 text-gray-400 hover:text-white hover:border-white/20"
+          }`}
+        >
+          All
+        </button>
+        {catHydrated && categories.map((cat) => (
           <button
-            key={cat}
-            onClick={() => setCategory(cat)}
+            key={cat.id}
+            onClick={() => setCategory(cat.name)}
             className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              category === cat
+              category === cat.name
                 ? "bg-[#FF6B00] text-white"
                 : "bg-[#111111] border border-white/10 text-gray-400 hover:text-white hover:border-white/20"
             }`}
           >
-            {cat}
+            {cat.emoji} {cat.name}
           </button>
         ))}
       </div>

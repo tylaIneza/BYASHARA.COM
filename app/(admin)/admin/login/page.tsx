@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Zap, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import toast from "react-hot-toast";
@@ -12,16 +11,15 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const res = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
-    if (res?.ok) {
+    if (res?.ok && !res.error) {
       toast.success("Welcome back!");
-      router.push("/admin/dashboard");
+      window.location.href = "/admin/dashboard";
     } else {
       toast.error("Invalid email or password");
     }

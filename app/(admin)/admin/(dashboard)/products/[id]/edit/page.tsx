@@ -1,20 +1,25 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   X, Plus, ArrowLeft, ChevronDown, Info,
-  ImagePlus, Trash2, CheckCircle2, Package, Loader2, Save,
+  ImagePlus, Trash2, CheckCircle2, Package, Star, Loader2,
+  PackagePlus, Minus, AlertTriangle,
 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useProductStore, fileToBase64 } from "@/lib/product-store";
 import { useCategoryStore } from "@/lib/category-store";
-import { slugify } from "@/lib/utils";
 const CONDITIONS = ["NEW", "REFURBISHED", "OPEN_BOX"];
 const CURRENCIES = ["RWF", "USD", "CDF"];
+
+interface ImageItem { file?: File; preview: string; isBase64: boolean; }
+interface PriceTier { minQty: number; maxQty: string; price: string; }
+interface Variant { name: string; value: string; stock: string; price: string; }
+
 const TABS = [
   { id: "basic", label: "Basic Info" },
   { id: "pricing", label: "Pricing" },
@@ -23,60 +28,122 @@ const TABS = [
   { id: "shipping", label: "Shipping" },
 ] as const;
 
-interface ImageItem { file: File; preview: string; }
-interface PriceTier { minQty: number; maxQty: string; price: string; }
-interface Variant { name: string; value: string; stock: string; price: string; }
+const STATUS_STYLE = {
+  ACTIVE: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
+  PENDING: "text-amber-400 bg-amber-400/10 border-amber-400/20",
+  DRAFT: "text-gray-400 bg-gray-400/10 border-gray-400/20",
+  REJECTED: "text-red-400 bg-red-400/10 border-red-400/20",
+};
 
-export default function NewProductPage() {
+export default function EditProductPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { addProduct } = useProductStore();
+  const { products, updateProduct } = useProductStore();
   const { categories } = useCategoryStore();
+  const product = products.find((p) => p.id === id);
 
   const [activeTab, setActiveTab] = useState<"basic" | "pricing" | "media" | "specs" | "shipping">("basic");
+  const [currency, setCurrency] = useState("RWF");
   const [saving, setSaving] = useState(false);
 
-  // Basic Info
-  const [name, setName] = useState("");
-  const [brand, setBrand] = useState("");
-  const [sku, setSku] = useState("");
-  const [category, setCategory] = useState("");
-  const [condition, setCondition] = useState(CONDITIONS[0]);
-  const [description, setDescription] = useState("");
-  const [warranty, setWarranty] = useState("");
-  const [tags, setTags] = useState("");
-
-  // Pricing
-  const [currency, setCurrency] = useState("RWF");
-  const [price, setPrice] = useState("");
-  const [salePrice, setSalePrice] = useState("");
-  const [moq, setMoq] = useState("1");
-  const [stock, setStock] = useState("");
-
-  // Media
+  // Images: existing base64 stored images + newly uploaded File objects
   const [imageItems, setImageItems] = useState<ImageItem[]>([]);
-
-  // Extras
-  const [weight, setWeight] = useState("");
-  const [variants, setVariants] = useState<Variant[]>([]);
-  const [specs, setSpecs] = useState([{ key: "", value: "" }]);
   const [priceTiers, setPriceTiers] = useState<PriceTier[]>([
     { minQty: 1, maxQty: "9", price: "" },
     { minQty: 10, maxQty: "49", price: "" },
     { minQty: 50, maxQty: "", price: "" },
   ]);
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [specs, setSpecs] = useState([{ key: "Brand", value: "" }]);
+
+  const [status, setStatus] = useState<"ACTIVE" | "PENDING" | "DRAFT" | "REJECTED">("PENDING");
+  const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
+  const [sku, setSku] = useState("");
+  const [category, setCategory] = useState("");
+  const [stock, setStock] = useState("");
+  const [moq, setMoq] = useState("1");
+  const [price, setPrice] = useState("");
+  const [salePrice, setSalePrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [warranty, setWarranty] = useState("");
+  const [tags, setTags] = useState("");
+  const [weight, setWeight] = useState("");
+  const [addQty, setAddQty] = useState(""); // units to add to stock
+
+  const applyAddStock = () => {
+    const qty = parseInt(addQty, 10);
+    if (!qty || qty <= 0) return;
+    setStock((prev) => String(Number(prev) + qty));
+    setAddQty("");
+    toast.success(`+${qty} units added to stock`);
+  };
+
+  // Populate fields from store once product is available
+  useEffect(() => {
+    if (!product) return;
+    setStatus(product.status);
+    setName(product.name);
+    setBrand(product.brand);
+    setSku(product.sku);
+    setCategory(product.category);
+    setStock(String(product.stock));
+    setMoq(String(product.moq));
+    setPrice(String(product.price));
+    setSalePrice(product.salePrice ? String(product.salePrice) : "");
+    setDescription(product.description);
+    setWarranty(product.warranty);
+    setTags(product.tags);
+    setWeight(product.weight);
+    setCurrency(product.currency ?? "RWF");
+    setSpecs([{ key: "Brand", value: product.brand }]);
+    setPriceTiers([
+      { minQty: 1, maxQty: "9", price: String(product.price) },
+      { minQty: 10, maxQty: "49", price: "" },
+      { minQty: 50, maxQty: "", price: "" },
+    ]);
+    // Load existing stored images
+    if (product.images && product.images.length > 0) {
+      setImageItems(product.images.map((src) => ({ preview: src, isBase64: true })));
+    } else if (product.imageUrl) {
+      setImageItems([{ preview: product.imageUrl, isBase64: true }]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
+
+  // Revoke blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      imageItems.forEach((item) => {
+        if (!item.isBase64 && item.preview) URL.revokeObjectURL(item.preview);
+      });
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newItems: ImageItem[] = acceptedFiles.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
+      isBase64: false,
     }));
     setImageItems((prev) => [...prev, ...newItems].slice(0, 10));
   }, []);
 
   const removeImage = (index: number) => {
     setImageItems((prev) => {
-      URL.revokeObjectURL(prev[index].preview);
+      const item = prev[index];
+      if (!item.isBase64) URL.revokeObjectURL(item.preview);
       return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const setPrimary = (index: number) => {
+    setImageItems((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(index, 1);
+      next.unshift(item);
+      return next;
     });
   };
 
@@ -87,56 +154,47 @@ export default function NewProductPage() {
     onDrop,
   });
 
-  const handleSave = async (status: "DRAFT" | "PENDING" | "ACTIVE") => {
-    if (!name.trim()) {
-      toast.error("Product name is required.");
-      setActiveTab("basic");
-      return;
-    }
-    if (!price || Number(price) <= 0) {
-      toast.error("Please enter a valid base price.");
-      setActiveTab("pricing");
-      return;
-    }
+  if (!product) {
+    return (
+      <div className="flex flex-col items-center justify-center h-80 space-y-4">
+        <p className="text-white font-bold text-lg">Product not found</p>
+        <Link href="/admin/products" className="btn-primary px-6 py-2.5 text-sm flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4" /> Back to Products
+        </Link>
+      </div>
+    );
+  }
 
+  const handleSave = async () => {
     setSaving(true);
     try {
+      // Convert any new File uploads to base64; keep existing base64 strings as-is
       const base64Images = await Promise.all(
-        imageItems.map((item) => fileToBase64(item.file))
+        imageItems.map((item) =>
+          item.isBase64 ? Promise.resolve(item.preview) : fileToBase64(item.file!)
+        )
       );
 
-      const id = `prod-${Date.now()}`;
-      addProduct({
-        id,
-        slug: slugify(name) || id,
-        name: name.trim(),
-        brand: brand.trim(),
-        sku: sku.trim() || `SKU-${Date.now()}`,
+      updateProduct(id, {
+        name,
+        brand,
+        sku,
         category,
-        condition,
-        description: description.trim(),
-        warranty: warranty.trim(),
-        tags: tags.trim(),
-        weight: weight.trim(),
-        currency,
+        status,
+        stock: Number(stock),
+        moq: Number(moq),
         price: Number(price),
         salePrice: salePrice ? Number(salePrice) : undefined,
-        moq: Number(moq) || 1,
-        stock: Number(stock) || 0,
-        status,
-        vendor: "Admin",
-        featured: false,
-        rating: 0,
-        soldCount: 0,
-        imageUrl: base64Images[0],
+        description,
+        warranty,
+        tags,
+        weight,
+        currency,
+        imageUrl: base64Images[0] ?? product.imageUrl,
         images: base64Images,
       });
 
-      toast.success(
-        status === "DRAFT"
-          ? "Product saved as draft."
-          : "Product published and live on the store!"
-      );
+      toast.success("Product saved — changes are now live on the store!");
       router.push("/admin/products");
     } catch {
       toast.error("Failed to save. Try using smaller images.");
@@ -145,34 +203,41 @@ export default function NewProductPage() {
     }
   };
 
+  const primaryPreview = imageItems[0]?.preview ?? null;
+
   return (
     <div className="space-y-6 max-w-5xl">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/products" className="p-2 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+        <div className="flex items-center gap-4 min-w-0">
+          <Link href="/admin/products" className="p-2 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all shrink-0">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <div>
-            <h1 className="text-2xl font-black text-white">Add New Product</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Fill in the details to list an electronics product</p>
+          <div className="h-11 w-11 rounded-xl overflow-hidden bg-[#1A1A1A] border border-white/10 flex items-center justify-center shrink-0">
+            {primaryPreview
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={primaryPreview} alt="" className="w-full h-full object-cover" />
+              : <Package className="h-5 w-5 text-gray-600" />
+            }
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-xl font-black text-white truncate">{name || "Edit Product"}</h1>
+            <p className="text-sm text-gray-500">{sku} · {product.vendor}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <button
-            onClick={() => handleSave("DRAFT")}
-            disabled={saving}
-            className="flex items-center gap-2 px-4 py-2.5 border border-white/10 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as typeof status)}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full border appearance-none cursor-pointer bg-transparent ${STATUS_STYLE[status]}`}
           >
-            <Save className="h-4 w-4" /> Save Draft
-          </button>
-          <button
-            onClick={() => handleSave("ACTIVE")}
-            disabled={saving}
-            className="btn-primary flex items-center gap-2 px-5 py-2.5 text-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Publish Now
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="PENDING">PENDING</option>
+            <option value="DRAFT">DRAFT</option>
+            <option value="REJECTED">REJECTED</option>
+          </select>
+          <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2 px-5 py-2.5 text-sm disabled:opacity-60">
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : <><CheckCircle2 className="h-4 w-4" /> Save Changes</>}
           </button>
         </div>
       </div>
@@ -203,20 +268,20 @@ export default function NewProductPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="md:col-span-2">
               <label className="label-xs">Product Name *</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Samsung Galaxy S24 Ultra 512GB" className="field" />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="field" placeholder="e.g. Samsung Galaxy S24 Ultra" />
             </div>
             <div>
               <label className="label-xs">Brand *</label>
-              <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="e.g. Samsung" className="field" />
+              <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} className="field" />
             </div>
             <div>
-              <label className="label-xs">SKU</label>
-              <input type="text" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="e.g. SAM-S24U-512 (auto-generated if blank)" className="field" />
+              <label className="label-xs">SKU *</label>
+              <input type="text" value={sku} onChange={(e) => setSku(e.target.value)} className="field" />
             </div>
             <div>
               <label className="label-xs">Product Condition</label>
               <div className="relative">
-                <select className="field appearance-none pr-8" value={condition} onChange={(e) => setCondition(e.target.value)}>
+                <select className="field appearance-none pr-8" defaultValue={product.condition}>
                   {CONDITIONS.map((c) => <option key={c}>{c}</option>)}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
@@ -234,15 +299,15 @@ export default function NewProductPage() {
             </div>
             <div>
               <label className="label-xs">Warranty</label>
-              <input type="text" value={warranty} onChange={(e) => setWarranty(e.target.value)} placeholder="e.g. 12 months manufacturer warranty" className="field" />
+              <input type="text" value={warranty} onChange={(e) => setWarranty(e.target.value)} className="field" />
             </div>
             <div>
               <label className="label-xs">Tags / Keywords</label>
-              <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="samsung, galaxy, smartphone (comma separated)" className="field" />
+              <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} className="field" placeholder="comma separated" />
             </div>
             <div className="md:col-span-2">
               <label className="label-xs">Description</label>
-              <textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Detailed product description for buyers..." className="field resize-none" />
+              <textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} className="field resize-none" />
             </div>
           </div>
 
@@ -265,7 +330,8 @@ export default function NewProductPage() {
                 <input type="text" placeholder="Value" className="field flex-1" />
                 <input type="number" placeholder="Stock" className="field w-24" />
                 <input type="number" placeholder="Price" className="field w-28" />
-                <button onClick={() => setVariants((vs) => vs.filter((_, xi) => xi !== i))} className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
+                <button onClick={() => setVariants((vs) => vs.filter((_, xi) => xi !== i))}
+                  className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all">
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -291,11 +357,17 @@ export default function NewProductPage() {
             </div>
             <div>
               <label className="label-xs">Base Price (Wholesale) *</label>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g. 890000" className="field" />
+              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="field" placeholder="e.g. 890000" />
             </div>
             <div>
               <label className="label-xs">Sale Price <span className="text-gray-600 font-normal normal-case tracking-normal">(leave blank = no discount)</span></label>
-              <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="e.g. 750000" className="field" />
+              <input
+                type="number"
+                value={salePrice}
+                onChange={(e) => setSalePrice(e.target.value)}
+                className="field"
+                placeholder="e.g. 750000"
+              />
               {salePrice && Number(salePrice) > 0 && Number(price) > 0 && (
                 <p className="text-[11px] text-emerald-400 mt-1.5">
                   {Math.round(((Number(price) - Number(salePrice)) / Number(price)) * 100)}% discount shown on storefront
@@ -304,11 +376,93 @@ export default function NewProductPage() {
             </div>
             <div>
               <label className="label-xs">MOQ *</label>
-              <input type="number" value={moq} onChange={(e) => setMoq(e.target.value)} min="1" placeholder="1" className="field" />
+              <input type="number" value={moq} onChange={(e) => setMoq(e.target.value)} min="1" className="field" />
             </div>
-            <div>
-              <label className="label-xs">Stock Quantity *</label>
-              <input type="number" value={stock} onChange={(e) => setStock(e.target.value)} placeholder="e.g. 100" className="field" />
+          </div>
+
+          {/* Stock management */}
+          <div className="bg-[#0D0D0D] border border-white/10 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <PackagePlus className="h-4 w-4 text-[#FF6B00]" />
+                <span className="text-sm font-bold text-white">Stock Management</span>
+              </div>
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                Number(stock) === 0
+                  ? "text-red-400 bg-red-400/10 border-red-400/20"
+                  : Number(stock) < 20
+                  ? "text-amber-400 bg-amber-400/10 border-amber-400/20"
+                  : "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
+              }`}>
+                {Number(stock) === 0 ? "Out of stock" : Number(stock) < 20 ? "Low stock" : "In stock"}
+              </span>
+            </div>
+
+            {/* Current stock display */}
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <label className="label-xs">Current Stock</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    min="0"
+                    className="field"
+                  />
+                  <span className="text-xs text-gray-500 whitespace-nowrap">units total</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Add stock widget */}
+            <div className="border-t border-white/10 pt-4">
+              <label className="label-xs">Add Stock (incoming shipment)</label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAddQty((v) => String(Math.max(0, Number(v) - 1)))}
+                  className="p-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <input
+                  type="number"
+                  value={addQty}
+                  onChange={(e) => setAddQty(e.target.value)}
+                  min="0"
+                  placeholder="0"
+                  className="field text-center"
+                  onKeyDown={(e) => e.key === "Enter" && applyAddStock()}
+                />
+                <button
+                  type="button"
+                  onClick={() => setAddQty((v) => String(Number(v) + 1))}
+                  className="p-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={applyAddStock}
+                  disabled={!addQty || Number(addQty) <= 0}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#FF6B00] hover:bg-[#e55f00] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all whitespace-nowrap"
+                >
+                  <PackagePlus className="h-4 w-4" />
+                  Add Units
+                </button>
+              </div>
+              {addQty && Number(addQty) > 0 && (
+                <p className="text-xs text-emerald-400 mt-2">
+                  Stock will become <span className="font-bold">{Number(stock) + Number(addQty)} units</span> after saving
+                </p>
+              )}
+              {Number(stock) === 0 && (
+                <div className="flex items-center gap-2 mt-3 text-xs text-amber-400 bg-amber-400/10 border border-amber-400/20 rounded-xl px-3 py-2">
+                  <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                  This product is out of stock and hidden from the storefront
+                </div>
+              )}
             </div>
           </div>
 
@@ -357,25 +511,27 @@ export default function NewProductPage() {
       {activeTab === "media" && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* Primary image preview */}
             <div className="flex flex-col gap-3">
               <p className="label-xs mb-0">Primary Image Preview</p>
               <div className="aspect-square rounded-2xl overflow-hidden bg-[#111111] border-2 border-white/10 flex items-center justify-center relative">
-                {imageItems[0] ? (
+                {primaryPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={imageItems[0].preview} alt="Primary" className="w-full h-full object-cover" />
+                  <img src={primaryPreview} alt="Primary" className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-gray-600">
                     <Package className="h-12 w-12" />
                     <span className="text-xs">Upload an image</span>
                   </div>
                 )}
-                {imageItems[0] && (
+                {primaryPreview && (
                   <span className="absolute top-2 left-2 text-[10px] bg-[#FF6B00] text-white px-2 py-0.5 rounded-full font-bold">PRIMARY</span>
                 )}
               </div>
               <p className="text-[11px] text-gray-500 text-center">This image appears on the storefront</p>
             </div>
 
+            {/* Upload + thumbnails */}
             <div className="lg:col-span-2 flex flex-col gap-4">
               <div
                 {...getRootProps()}
@@ -400,13 +556,20 @@ export default function NewProductPage() {
                     <div key={i} className="relative group rounded-xl overflow-hidden bg-[#1A1A1A] border border-white/10 aspect-square">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.preview} alt="" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        {i !== 0 && (
+                          <button onClick={() => setPrimary(i)} className="p-1.5 bg-amber-500/80 rounded-full" title="Set as primary">
+                            <Star className="h-3.5 w-3.5 text-white fill-white" />
+                          </button>
+                        )}
                         <button onClick={() => removeImage(i)} className="p-1.5 bg-red-500/80 rounded-full">
                           <Trash2 className="h-3.5 w-3.5 text-white" />
                         </button>
                       </div>
                       {i === 0 && (
-                        <span className="absolute top-1 left-1 text-[9px] bg-[#FF6B00] text-white px-1.5 py-0.5 rounded font-bold leading-none">PRIMARY</span>
+                        <span className="absolute top-1 left-1 text-[9px] bg-[#FF6B00] text-white px-1.5 py-0.5 rounded font-bold leading-none">
+                          PRIMARY
+                        </span>
                       )}
                     </div>
                   ))}
@@ -459,7 +622,7 @@ export default function NewProductPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div>
               <label className="label-xs">Weight (kg)</label>
-              <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} step="0.1" placeholder="0.5" className="field" />
+              <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} step="0.1" className="field" />
             </div>
             <div>
               <label className="label-xs">Length (cm)</label>
@@ -493,17 +656,9 @@ export default function NewProductPage() {
         <Link href="/admin/products" className="px-5 py-2.5 border border-white/10 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" /> Cancel
         </Link>
-        <div className="flex items-center gap-3">
-          <button onClick={() => handleSave("DRAFT")} disabled={saving}
-            className="px-5 py-2.5 border border-white/10 rounded-xl text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 flex items-center gap-2">
-            <Save className="h-4 w-4" /> Save Draft
-          </button>
-          <button onClick={() => handleSave("ACTIVE")} disabled={saving}
-            className="btn-primary px-8 py-2.5 text-sm flex items-center gap-2 disabled:opacity-50">
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            Publish Now
-          </button>
-        </div>
+        <button onClick={handleSave} disabled={saving} className="btn-primary px-8 py-2.5 text-sm flex items-center gap-2 disabled:opacity-60">
+          {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : <><CheckCircle2 className="h-4 w-4" /> Save Changes</>}
+        </button>
       </div>
 
       <style jsx global>{`

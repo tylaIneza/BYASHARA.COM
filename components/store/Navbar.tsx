@@ -10,11 +10,7 @@ import {
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/cart-store";
-
-const CATEGORIES = [
-  "Smartphones", "Laptops", "Accessories", "TVs", "Audio",
-  "Gaming", "Networking", "CCTV", "Solar", "Smart Home",
-];
+import { useCategoryStore } from "@/lib/category-store";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -24,6 +20,7 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const itemCount = useCartStore((s) => s.itemCount());
+  const { categories, hydrated: catHydrated } = useCategoryStore();
 
   useEffect(() => setMounted(true), []);
 
@@ -79,13 +76,13 @@ export function Navbar() {
                   Categories <ChevronDown className="h-4 w-4 group-hover:rotate-180 transition-transform" />
                 </button>
                 <div className="absolute top-full left-0 w-56 mt-2 glass-dark rounded-2xl border border-white/10 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
-                  {CATEGORIES.map((cat) => (
+                  {catHydrated && categories.map((cat) => (
                     <Link
-                      key={cat}
-                      href={`/categories/${cat.toLowerCase()}`}
+                      key={cat.id}
+                      href={`/products?cat=${encodeURIComponent(cat.name)}`}
                       className="block px-4 py-2 text-sm text-gray-300 hover:text-[#FF6B00] hover:bg-white/5 transition-colors"
                     >
-                      {cat}
+                      {cat.emoji} {cat.name}
                     </Link>
                   ))}
                 </div>
@@ -164,14 +161,14 @@ export function Navbar() {
               className="lg:hidden border-t border-white/10 bg-[#0A0A0A]"
             >
               <div className="px-4 py-4 space-y-1">
-                {CATEGORIES.map((cat) => (
+                {catHydrated && categories.map((cat) => (
                   <Link
-                    key={cat}
-                    href={`/categories/${cat.toLowerCase()}`}
+                    key={cat.id}
+                    href={`/products?cat=${encodeURIComponent(cat.name)}`}
                     className="block py-2.5 px-4 text-sm text-gray-300 hover:text-[#FF6B00] hover:bg-white/5 rounded-xl transition-colors"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {cat}
+                    {cat.emoji} {cat.name}
                   </Link>
                 ))}
                 <hr className="border-white/10 my-2" />

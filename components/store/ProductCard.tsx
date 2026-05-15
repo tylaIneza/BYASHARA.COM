@@ -1,13 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingBag, MessageCircle, Star, Package, Zap } from "lucide-react";
 import { formatCurrency, cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/cart-store";
+import { useCurrencyStore } from "@/lib/currency-store";
 import toast from "react-hot-toast";
+
+function useFormatPrice() {
+  const { isOutsideRwanda, rwfPerUsd } = useCurrencyStore();
+  return (amount: number, currency = "RWF") => {
+    if (isOutsideRwanda && currency === "RWF") {
+      return formatCurrency(Math.round(amount / rwfPerUsd), "USD");
+    }
+    return formatCurrency(amount, currency);
+  };
+}
 
 export interface ProductCardData {
   id: string;
@@ -33,6 +43,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const [qty, setQty] = useState(product.moq);
   const [imageError, setImageError] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
+  const fmt = useFormatPrice();
 
   const price = product.salePrice ?? product.price;
   const discount = product.salePrice
@@ -65,8 +76,8 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
         `• SKU: ${product.sku}`,
         product.brand ? `• Brand: ${product.brand}` : "",
         `• Quantity: ${qty} units`,
-        `• Unit Price: ${formatCurrency(price, product.currency)}`,
-        `• Total: ${formatCurrency(price * qty, product.currency)}`,
+        `• Unit Price: ${fmt(price, product.currency)}`,
+        `• Total: ${fmt(price * qty, product.currency)}`,
         `━━━━━━━━━━━━━━━━━━`,
         `Please confirm availability and delivery location.`,
       ]
@@ -112,11 +123,11 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
           {/* Image */}
           <div className="relative h-48 sm:h-52 bg-[#1A1A1A] overflow-hidden">
             {!imageError && product.imageUrl ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={product.imageUrl}
                 alt={product.name}
-                fill
-                className="object-contain p-4 group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500"
                 onError={() => setImageError(true)}
               />
             ) : (
@@ -149,9 +160,9 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
 
             {/* Price */}
             <div className="flex items-end gap-2 mb-2">
-              <span className="text-base font-bold text-white">{formatCurrency(price, product.currency)}</span>
+              <span className="text-base font-bold text-white">{fmt(price, product.currency)}</span>
               {product.salePrice && (
-                <span className="text-xs text-gray-500 line-through">{formatCurrency(product.price, product.currency)}</span>
+                <span className="text-xs text-gray-500 line-through">{fmt(product.price, product.currency)}</span>
               )}
             </div>
 
@@ -174,7 +185,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                 >+</button>
               </div>
               <span className="text-xs text-[#FF6B00] font-semibold flex-1 text-right">
-                {formatCurrency(price * qty, product.currency)}
+                {fmt(price * qty, product.currency)}
               </span>
             </div>
 
