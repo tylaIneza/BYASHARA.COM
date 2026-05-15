@@ -14,7 +14,7 @@ import { formatCurrency } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 export function ProductSlider() {
-  const { products } = useProductStore();
+  const { products, hydrated } = useProductStore();
   const { isOutsideRwanda, rwfPerUsd } = useCurrencyStore();
   const addItem = useCartStore((s) => s.addItem);
 
@@ -47,6 +47,9 @@ export function ProductSlider() {
     }, 5000);
     return () => clearInterval(t);
   }, [paused, total]);
+
+  // Still waiting for localStorage to load — show skeleton, never flash fallback
+  if (!hydrated) return <SliderSkeleton />;
 
   if (total === 0) return <FallbackBanner />;
 
@@ -268,6 +271,36 @@ export function ProductSlider() {
           transition={{ duration: 5, ease: "linear" }}
         />
       )}
+    </div>
+  );
+}
+
+function SliderSkeleton() {
+  return (
+    <div className="w-full bg-[#080808] border-b border-white/5">
+      <div className="relative h-[300px] sm:h-[380px] lg:h-[460px] overflow-hidden">
+        {/* Shimmer overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#111]/0 via-white/[0.03] to-[#111]/0 animate-pulse" />
+        {/* Left text skeleton */}
+        <div className="absolute left-5 sm:left-10 lg:left-16 top-1/2 -translate-y-1/2 space-y-4 w-[52%]">
+          <div className="h-5 w-20 rounded-full bg-white/5" />
+          <div className="space-y-2">
+            <div className="h-8 sm:h-10 w-full rounded-xl bg-white/5" />
+            <div className="h-8 sm:h-10 w-3/4 rounded-xl bg-white/5" />
+          </div>
+          <div className="h-6 w-32 rounded-lg bg-white/5" />
+          <div className="flex gap-3 pt-1">
+            <div className="h-10 w-28 rounded-xl bg-white/5" />
+            <div className="h-10 w-24 rounded-xl bg-white/5" />
+          </div>
+        </div>
+        {/* Right image skeleton */}
+        <div className="absolute right-0 top-0 bottom-0 w-[50%] flex items-center justify-end pr-6 sm:pr-10 lg:pr-16">
+          <div className="h-48 sm:h-64 lg:h-80 w-full max-w-[260px] rounded-2xl bg-white/5" />
+        </div>
+      </div>
+      {/* Bottom bar skeleton */}
+      <div className="h-10 bg-[#0D0D0D] border-t border-white/5" />
     </div>
   );
 }

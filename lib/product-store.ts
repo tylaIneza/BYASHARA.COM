@@ -84,6 +84,7 @@ export const INITIAL_PRODUCTS: Product[] = Array.from({ length: 20 }, (_, i) => 
 
 interface ProductStore {
   products: Product[];
+  hydrated: boolean;
   updateProduct: (id: string, changes: Partial<Product>) => void;
   addProduct: (product: Product) => void;
   deleteProduct: (id: string) => void;
@@ -93,6 +94,7 @@ export const useProductStore = create<ProductStore>()(
   persist(
     (set) => ({
       products: INITIAL_PRODUCTS,
+      hydrated: false,
       updateProduct: (id, changes) =>
         set((state) => ({
           products: state.products.map((p) =>
@@ -107,6 +109,10 @@ export const useProductStore = create<ProductStore>()(
     {
       name: "byashara-products",
       skipHydration: true,
+      partialize: (s) => ({ products: s.products }),
+      onRehydrateStorage: () => (_state, error) => {
+        if (!error) setTimeout(() => useProductStore.setState({ hydrated: true }), 0);
+      },
     }
   )
 );

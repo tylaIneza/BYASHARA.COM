@@ -29,7 +29,7 @@ export default function ProductsPage() {
   const [mounted, setMounted] = useState(false);
 
   const { itemCount, total } = useCartStore();
-  const { products: storeProducts } = useProductStore();
+  const { products: storeProducts, hydrated: prodHydrated } = useProductStore();
   const { categories, hydrated: catHydrated } = useCategoryStore();
   useEffect(() => setMounted(true), []);
 
@@ -149,9 +149,25 @@ export default function ProductsPage() {
 
       {/* Grid */}
       <div className={`grid gap-4 ${view === "grid" ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1 md:grid-cols-2"}`}>
-        {filtered.map((product, i) => (
-          <ProductCard key={product.id} product={product} index={i} />
-        ))}
+        {!prodHydrated
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="rounded-2xl bg-[#111111] border border-white/10 overflow-hidden">
+                <div className="skeleton h-44" />
+                <div className="p-4 space-y-2">
+                  <div className="skeleton h-3 w-16 rounded" />
+                  <div className="skeleton h-4 w-full rounded" />
+                  <div className="skeleton h-6 w-24 rounded" />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="skeleton h-9 rounded-xl" />
+                    <div className="skeleton h-9 rounded-xl" />
+                  </div>
+                </div>
+              </div>
+            ))
+          : filtered.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))
+        }
       </div>
 
       {/* Load more */}

@@ -23,7 +23,7 @@ const FEATURES = [
 
 export default function HomePage() {
   const productsRef = useRef<HTMLElement>(null);
-  const { products } = useProductStore();
+  const { products, hydrated: prodHydrated } = useProductStore();
   const { categories, hydrated: catHydrated } = useCategoryStore();
 
   const featured: ProductCardData[] = products
@@ -65,30 +65,29 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {featured.length > 0 ? (
+        {!prodHydrated || featured.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {featured.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl bg-[#111111] border border-white/10 overflow-hidden">
-                <div className="skeleton h-44" />
-                <div className="p-4 space-y-2">
-                  <div className="skeleton h-3 w-16 rounded" />
-                  <div className="skeleton h-4 w-full rounded" />
-                  <div className="skeleton h-6 w-24 rounded" />
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="skeleton h-9 rounded-xl" />
-                    <div className="skeleton h-9 rounded-xl" />
+            {prodHydrated
+              ? featured.map((product, i) => (
+                  <ProductCard key={product.id} product={product} index={i} />
+                ))
+              : Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl bg-[#111111] border border-white/10 overflow-hidden">
+                    <div className="skeleton h-44" />
+                    <div className="p-4 space-y-2">
+                      <div className="skeleton h-3 w-16 rounded" />
+                      <div className="skeleton h-4 w-full rounded" />
+                      <div className="skeleton h-6 w-24 rounded" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="skeleton h-9 rounded-xl" />
+                        <div className="skeleton h-9 rounded-xl" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                ))
+            }
           </div>
-        )}
+        ) : null}
 
         <div className="text-center mt-8">
           <Link href="/products" className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-sm">
