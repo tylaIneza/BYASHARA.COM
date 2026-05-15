@@ -1,7 +1,6 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export interface CustomerOrder {
   id: string;
@@ -26,75 +25,56 @@ export interface Customer {
 interface CustomerStore {
   customers: Customer[];
   hydrated: boolean;
+  load: () => Promise<void>;
   recordOrder: (params: {
     name: string;
     location: string;
     total: number;
     items: CustomerOrder["items"];
     isRetail: boolean;
-  }) => void;
-  deleteCustomer: (id: string) => void;
-  clearAll: () => void;
+  }) => Promise<void>;
+  deleteCustomer: (id: string) => Promise<void>;
+  clearAll: () => Promise<void>;
 }
 
-export const useCustomerStore = create<CustomerStore>()(
-  persist(
-    (set, get) => ({
-      customers: [],
-      hydrated: false,
-      recordOrder: ({ name, location, total, items, isRetail }) => {
-        const trimmed = name.trim();
-        const now = Date.now();
-        const order: CustomerOrder = {
-          id: `ord-${now}-${Math.random().toString(36).slice(2, 6)}`,
-          items,
-          total,
-          location,
-          isRetail,
-          createdAt: now,
-        };
-        const existing = get().customers.find(
-          (c) => c.name.toLowerCase() === trimmed.toLowerCase()
-        );
-        if (existing) {
-          set((s) => ({
-            customers: s.customers.map((c) =>
-              c.id === existing.id
-                ? {
-                    ...c,
-                    location,
-                    orderCount: c.orderCount + 1,
-                    totalSpent: c.totalSpent + total,
-                    lastOrderAt: now,
-                    orders: [order, ...c.orders],
-                  }
-                : c
-            ),
-          }));
-        } else {
-          const customer: Customer = {
-            id: `cust-${now}-${Math.random().toString(36).slice(2, 6)}`,
-            name: trimmed,
-            location,
-            orderCount: 1,
-            totalSpent: total,
-            firstOrderAt: now,
-            lastOrderAt: now,
-            orders: [order],
-          };
-          set((s) => ({ customers: [customer, ...s.customers] }));
-        }
-      },
-      deleteCustomer: (id) =>
-        set((s) => ({ customers: s.customers.filter((c) => c.id !== id) })),
-      clearAll: () => set({ customers: [] }),
-    }),
-    {
-      name: "byashara-customers",
-      skipHydration: true,
-      onRehydrateStorage: () => (_state, error) => {
-        if (!error) setTimeout(() => useCustomerStore.setState({ hydrated: true }), 0);
-      },
+export const useCustomerStore = create<CustomerStore>()((set) => ({
+  customers: [],
+  hydrated: false,
+
+  load: async () => {
+    try {
+      const res = await fetch("/api/customers");
+      if (!res.ok) throw new Error("fetch failed");
+      const data: Customer[] = await res.json();
+      set({ customers: data, hydrated: true });
+    } catch {
+      set({ hydrated: true });
     }
-  )
-);
+  },
+
+  recordOrder: async ({ name, location, total, items, isRetail }) => {
+    const res = await fetch("/api/customers/record", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, location, total, items, isRetail }),
+    });
+    const updated: Customer = await res.json();
+    set((s) => {
+      const exists = s.customers.find((c) => c.id === updated.id);
+      if (exists) {
+        return { customers: s.customers.map((c) => (c.id === updated.id ? updated : c)) };
+      }
+      return { customers: [updated, ...s.customers] };
+    });
+  },
+
+  deleteCustomer: async (id) => {
+    set((s) => ({ customers: s.customers.filter((c) => c.id !== id) }));
+    await fetch(`/api/customers/${id}`, { method: "DELETE" });
+  },
+
+  clearAll: async () => {
+    set({ customers: [] });
+    await fetch("/api/customers", { method: "DELETE" });
+  },
+}));

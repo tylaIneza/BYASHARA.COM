@@ -1,7 +1,6 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export type NotifType = "order" | "product" | "category" | "system";
 
@@ -20,60 +19,77 @@ interface NotificationStore {
   hydrated: boolean;
   browserPermission: NotificationPermission | "default";
   unreadCount: () => number;
-  add: (n: Pick<AppNotification, "type" | "title" | "body" | "link">) => void;
-  markRead: (id: string) => void;
-  markAllRead: () => void;
-  remove: (id: string) => void;
-  clear: () => void;
+  load: () => Promise<void>;
+  add: (n: Pick<AppNotification, "type" | "title" | "body" | "link">) => Promise<void>;
+  markRead: (id: string) => Promise<void>;
+  markAllRead: () => Promise<void>;
+  remove: (id: string) => Promise<void>;
+  clear: () => Promise<void>;
   setBrowserPermission: (p: NotificationPermission) => void;
 }
 
-export const useNotificationStore = create<NotificationStore>()(
-  persist(
-    (set, get) => ({
-      notifications: [],
-      hydrated: false,
-      browserPermission: "default",
-      unreadCount: () => get().notifications.filter((n) => !n.read).length,
-      add: (n) => {
-        const notif: AppNotification = {
-          ...n,
-          id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-          read: false,
-          createdAt: Date.now(),
-        };
-        set((s) => ({ notifications: [notif, ...s.notifications].slice(0, 100) }));
+export const useNotificationStore = create<NotificationStore>()((set, get) => ({
+  notifications: [],
+  hydrated: false,
+  browserPermission: "default",
 
-        // Fire browser notification if permission granted
-        if (typeof window !== "undefined" && Notification.permission === "granted") {
-          new Notification(notif.title, {
-            body: notif.body,
-            icon: "/icon-192.png",
-            badge: "/icon-192.png",
-            tag: notif.id,
-          });
-        }
-      },
-      markRead: (id) =>
-        set((s) => ({
-          notifications: s.notifications.map((n) => n.id === id ? { ...n, read: true } : n),
-        })),
-      markAllRead: () =>
-        set((s) => ({
-          notifications: s.notifications.map((n) => ({ ...n, read: true })),
-        })),
-      remove: (id) =>
-        set((s) => ({ notifications: s.notifications.filter((n) => n.id !== id) })),
-      clear: () => set({ notifications: [] }),
-      setBrowserPermission: (p) => set({ browserPermission: p }),
-    }),
-    {
-      name: "byashara-notifications",
-      skipHydration: true,
-      partialize: (s) => ({ notifications: s.notifications }),
-      onRehydrateStorage: () => (_state, error) => {
-        if (!error) setTimeout(() => useNotificationStore.setState({ hydrated: true }), 0);
-      },
+  unreadCount: () => get().notifications.filter((n) => !n.read).length,
+
+  load: async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      if (!res.ok) throw new Error("fetch failed");
+      const data: AppNotification[] = await res.json();
+      set({ notifications: data, hydrated: true });
+    } catch {
+      set({ hydrated: true });
     }
-  )
-);
+  },
+
+  add: async (n) => {
+    const res = await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(n),
+    });
+    const created: AppNotification = await res.json();
+    set((s) => ({ notifications: [created, ...s.notifications].slice(0, 100) }));
+
+    if (typeof window !== "undefined" && Notification.permission === "granted") {
+      new Notification(created.title, {
+        body: created.body,
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        tag: created.id,
+      });
+    }
+  },
+
+  markRead: async (id) => {
+    set((s) => ({
+      notifications: s.notifications.map((n) => n.id === id ? { ...n, read: true } : n),
+    }));
+    await fetch(`/api/notifications/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ read: true }),
+    });
+  },
+
+  markAllRead: async () => {
+    set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })) }));
+    await fetch("/api/notifications/read-all", { method: "POST" });
+  },
+
+  remove: async (id) => {
+    set((s) => ({ notifications: s.notifications.filter((n) => n.id !== id) }));
+    await fetch(`/api/notifications/${id}`, { method: "DELETE" });
+  },
+
+  clear: async () => {
+    set({ notifications: [] });
+    await fetch("/api/notifications", { method: "DELETE" });
+  },
+
+  setBrowserPermission: (p) => set({ browserPermission: p }),
+}));

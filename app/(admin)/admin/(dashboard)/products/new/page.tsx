@@ -107,10 +107,9 @@ export default function NewProductPage() {
         imageItems.map((item) => fileToBase64(item.file))
       );
 
-      const id = `prod-${Date.now()}`;
-      addProduct({
-        id,
-        slug: slugify(name) || id,
+      const slugBase = slugify(name) || `prod-${Date.now()}`;
+      await addProduct({
+        slug: slugBase,
         name: name.trim(),
         brand: brand.trim(),
         sku: sku.trim() || `SKU-${Date.now()}`,

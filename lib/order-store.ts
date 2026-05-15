@@ -1,9 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
-export type OrderStatus = "PENDING" | "CONFIRMED" | "DISPATCHED" | "DELIVERED" | "CANCELLED";
+export type OrderStatus = "PENDING" | "CONFIRMED" | "PROCESSING" | "DISPATCHED" | "DELIVERED" | "CANCELLED";
 
 export interface OrderItem {
   name: string;
@@ -27,47 +26,56 @@ export interface Order {
 interface OrderStore {
   orders: Order[];
   hydrated: boolean;
-  addOrder: (o: Omit<Order, "id" | "status" | "createdAt">) => void;
-  updateStatus: (id: string, status: OrderStatus) => void;
-  deleteOrder: (id: string) => void;
-  clearAll: () => void;
+  load: () => Promise<void>;
+  addOrder: (o: Omit<Order, "id" | "status" | "createdAt">) => Promise<void>;
+  updateStatus: (id: string, status: OrderStatus) => Promise<void>;
+  deleteOrder: (id: string) => Promise<void>;
+  clearAll: () => Promise<void>;
 }
 
-function genId() {
-  return "BYA-" + Math.random().toString(36).slice(2, 7).toUpperCase();
-}
+export const useOrderStore = create<OrderStore>()((set) => ({
+  orders: [],
+  hydrated: false,
 
-export const useOrderStore = create<OrderStore>()(
-  persist(
-    (set) => ({
-      orders: [],
-      hydrated: false,
-      addOrder: (o) =>
-        set((s) => ({
-          orders: [
-            {
-              ...o,
-              id: genId(),
-              status: "PENDING",
-              createdAt: Date.now(),
-            },
-            ...s.orders,
-          ],
-        })),
-      updateStatus: (id, status) =>
-        set((s) => ({
-          orders: s.orders.map((o) => (o.id === id ? { ...o, status } : o)),
-        })),
-      deleteOrder: (id) =>
-        set((s) => ({ orders: s.orders.filter((o) => o.id !== id) })),
-      clearAll: () => set({ orders: [] }),
-    }),
-    {
-      name: "byashara-orders",
-      skipHydration: true,
-      onRehydrateStorage: () => (_state, error) => {
-        if (!error) setTimeout(() => useOrderStore.setState({ hydrated: true }), 0);
-      },
+  load: async () => {
+    try {
+      const res = await fetch("/api/orders");
+      if (!res.ok) throw new Error("fetch failed");
+      const data: Order[] = await res.json();
+      set({ orders: data, hydrated: true });
+    } catch {
+      set({ hydrated: true });
     }
-  )
-);
+  },
+
+  addOrder: async (o) => {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(o),
+    });
+    const created: Order = await res.json();
+    set((s) => ({ orders: [created, ...s.orders] }));
+  },
+
+  updateStatus: async (id, status) => {
+    set((s) => ({
+      orders: s.orders.map((o) => (o.id === id ? { ...o, status } : o)),
+    }));
+    await fetch(`/api/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  deleteOrder: async (id) => {
+    set((s) => ({ orders: s.orders.filter((o) => o.id !== id) }));
+    await fetch(`/api/orders/${id}`, { method: "DELETE" });
+  },
+
+  clearAll: async () => {
+    set({ orders: [] });
+    await fetch("/api/orders", { method: "DELETE" });
+  },
+}));

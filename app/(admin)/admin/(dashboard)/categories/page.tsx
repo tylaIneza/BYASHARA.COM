@@ -74,7 +74,6 @@ export default function AdminCategoriesPage() {
       addNotification({ type: "category", title: "Category updated", body: `"${form.name.trim()}" was updated.`, link: "/admin/categories" });
     } else {
       addCategory({
-        id: `cat-${Date.now()}`,
         name: form.name.trim(),
         slug: slugify(form.name.trim()),
         description: form.description.trim(),

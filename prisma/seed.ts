@@ -6,9 +6,9 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Seeding BOUTIQUE BYASHARA database...");
 
-  // Admin user
+  // Default admin user
   const adminPassword = await bcrypt.hash("admin@123", 12);
-  const admin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "admin@byashara.com" },
     update: {},
     create: {
@@ -18,50 +18,22 @@ async function main() {
       role: "SUPER_ADMIN",
     },
   });
-  console.log("✅ Admin:", admin.email);
+  console.log("✅ Admin user seeded: admin@byashara.com / admin@123");
 
-  // Vendor user
-  const vendorPassword = await bcrypt.hash("vendor@123", 12);
-  const vendorUser = await prisma.user.upsert({
-    where: { email: "vendor@techkigali.com" },
-    update: {},
-    create: {
-      email: "vendor@techkigali.com",
-      name: "TechKigali Manager",
-      password: vendorPassword,
-      role: "VENDOR",
-    },
-  });
-
-  const vendor = await prisma.vendor.upsert({
-    where: { userId: vendorUser.id },
-    update: {},
-    create: {
-      userId: vendorUser.id,
-      businessName: "TechKigali Ltd",
-      description: "Leading electronics distributor in Kigali",
-      phone: "+250780000001",
-      whatsapp: "+250780000001",
-      address: "Kigali, Rwanda",
-      status: "VERIFIED",
-    },
-  });
-  console.log("✅ Vendor:", vendor.businessName);
-
-  // Categories
+  // Default categories
   const categories = [
-    { name: "Smartphones", slug: "smartphones", icon: "smartphone" },
-    { name: "Laptops", slug: "laptops", icon: "laptop" },
-    { name: "TVs", slug: "tvs", icon: "tv" },
-    { name: "Audio", slug: "audio", icon: "speaker" },
-    { name: "Networking", slug: "networking", icon: "wifi" },
-    { name: "CCTV & Security", slug: "cctv", icon: "camera" },
-    { name: "Gaming", slug: "gaming", icon: "gamepad" },
-    { name: "Solar Electronics", slug: "solar", icon: "sun" },
-    { name: "Smart Home", slug: "smart-home", icon: "home" },
-    { name: "Accessories", slug: "accessories", icon: "zap" },
-    { name: "Printers", slug: "printers", icon: "printer" },
-    { name: "Repair Tools", slug: "repair-tools", icon: "wrench" },
+    { name: "Smartphones",  slug: "smartphones",  color: "#3B82F6", emoji: "📱" },
+    { name: "Laptops",      slug: "laptops",      color: "#8B5CF6", emoji: "💻" },
+    { name: "TVs",          slug: "tvs",          color: "#EF4444", emoji: "📺" },
+    { name: "Audio",        slug: "audio",        color: "#EC4899", emoji: "🔊" },
+    { name: "Networking",   slug: "networking",   color: "#06B6D4", emoji: "📡" },
+    { name: "CCTV",         slug: "cctv",         color: "#F59E0B", emoji: "📷" },
+    { name: "Gaming",       slug: "gaming",       color: "#10B981", emoji: "🎮" },
+    { name: "Solar",        slug: "solar",        color: "#EAB308", emoji: "☀️" },
+    { name: "Smart Home",   slug: "smart-home",   color: "#14B8A6", emoji: "🏠" },
+    { name: "Accessories",  slug: "accessories",  color: "#F97316", emoji: "🔌" },
+    { name: "Printers",     slug: "printers",     color: "#6366F1", emoji: "🖨️" },
+    { name: "Repair Tools", slug: "repair-tools", color: "#84CC16", emoji: "🔧" },
   ];
 
   for (const cat of categories) {
@@ -73,43 +45,8 @@ async function main() {
   }
   console.log("✅ Categories seeded");
 
-  // Provinces
-  const provinces = [
-    { name: "Kigali City", country: "RWANDA" as const, shippingFee: 2000, deliveryDays: 1 },
-    { name: "Eastern Province", country: "RWANDA" as const, shippingFee: 5000, deliveryDays: 2 },
-    { name: "Western Province", country: "RWANDA" as const, shippingFee: 5000, deliveryDays: 2 },
-    { name: "Northern Province", country: "RWANDA" as const, shippingFee: 5000, deliveryDays: 2 },
-    { name: "Southern Province", country: "RWANDA" as const, shippingFee: 5000, deliveryDays: 2 },
-    { name: "Goma, North Kivu", country: "DRC" as const, shippingFee: 15000, deliveryDays: 4 },
-    { name: "Bukavu, South Kivu", country: "DRC" as const, shippingFee: 15000, deliveryDays: 5 },
-  ];
-
-  for (const p of provinces) {
-    await prisma.province.upsert({
-      where: { name: p.name },
-      update: {},
-      create: p,
-    });
-  }
-  console.log("✅ Provinces seeded");
-
-  // Site settings
-  await prisma.siteSettings.upsert({
-    where: { id: "default" },
-    update: {},
-    create: {
-      id: "default",
-      whatsappNumber: "+250788628417",
-      currency: "RWF",
-      siteName: "BOUTIQUE BYASHARA",
-    },
-  });
-  console.log("✅ Site settings seeded");
-
-  console.log("\n🎉 BOUTIQUE BYASHARA database seeded successfully!");
-  console.log("\nCredentials:");
-  console.log("  Admin: admin@byashara.com / admin@123");
-  console.log("  Vendor: vendor@techkigali.com / vendor@123");
+  console.log("\n🎉 Database seeded successfully!");
+  console.log("   Login: admin@byashara.com  /  admin@123");
 }
 
 main()

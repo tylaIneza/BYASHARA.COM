@@ -13,11 +13,11 @@ export function CartHydration() {
   const detect = useCurrencyStore((s) => s.detect);
   useEffect(() => {
     useCartStore.persist.rehydrate();
-    useProductStore.persist.rehydrate();
-    useCategoryStore.persist.rehydrate();
-    useOrderStore.persist.rehydrate();
-    useCustomerStore.persist.rehydrate();
-    useNotificationStore.persist.rehydrate();
+    useProductStore.getState().load();
+    useCategoryStore.getState().load();
+    useOrderStore.getState().load();
+    useCustomerStore.getState().load();
+    useNotificationStore.getState().load();
     detect();
   }, [detect]);
   return null;
