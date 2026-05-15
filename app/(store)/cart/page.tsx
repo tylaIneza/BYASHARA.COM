@@ -10,6 +10,7 @@ import {
 import { useCartStore } from "@/lib/cart-store";
 import { formatCurrency, generateWhatsAppMessage } from "@/lib/utils";
 import { useNotificationStore } from "@/lib/notification-store";
+import { useCustomerStore } from "@/lib/customer-store";
 
 const PROVINCES = [
   // Rwanda
@@ -29,6 +30,7 @@ const effectiveUnitPrice = (price: number, qty: number) =>
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart } = useCartStore();
   const addNotification = useNotificationStore((s) => s.add);
+  const recordOrder = useCustomerStore((s) => s.recordOrder);
   const [province, setProvince] = useState("");
   const [customerName, setCustomerName] = useState("");
 
@@ -59,6 +61,13 @@ export default function CartPage() {
     }));
     const msg = generateWhatsAppMessage(adjustedItems, province, customerName, transportFee);
     window.open(`https://wa.me/${whatsappNumber.replace(/\s/g, "")}?text=${msg}`, "_blank");
+    recordOrder({
+      name: customerName,
+      location: province,
+      total: grandTotal,
+      isRetail: hasRetailItems,
+      items: adjustedItems.map((i) => ({ name: i.name, qty: i.quantity, price: i.price })),
+    });
     addNotification({
       type: "order",
       title: "New WhatsApp order",
