@@ -7,13 +7,13 @@ import { useCategoryStore } from "@/lib/category-store";
 export function Footer() {
   const { categories, hydrated: catHydrated } = useCategoryStore();
   return (
-    <footer className="bg-[#0A0A0A] border-t border-white/10 mt-20">
+    <footer className="bg-gray-50 dark:bg-[#0A0A0A] border-t border-gray-200 dark:border-white/10 mt-20">
       {/* WhatsApp CTA */}
-      <div className="bg-gradient-to-r from-[#FF6B00]/20 to-transparent border-b border-white/10">
+      <div className="bg-gradient-to-r from-[#FF6B00]/20 to-transparent border-b border-gray-200 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <h3 className="text-xl font-bold text-white">Ready to order wholesale?</h3>
-            <p className="text-gray-400 text-sm mt-1">Talk to our sales team on WhatsApp — instant quotes, bulk pricing.</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Ready to order wholesale?</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Talk to our sales team on WhatsApp — instant quotes, bulk pricing.</p>
           </div>
           <Link
             href="/cart"
@@ -32,25 +32,25 @@ export function Footer() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-black text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
+            <span className="text-lg font-black text-gray-900 dark:text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
           </div>
-          <p className="text-sm text-gray-400 leading-relaxed">
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
             Rwanda & Eastern DRC&apos;s #1 electronics wholesale marketplace. Powering businesses with bulk tech.
           </p>
           <div className="flex items-center gap-3 mt-4">
-            <a href="#" className="p-2 bg-white/5 hover:bg-[#FF6B00]/20 text-gray-400 hover:text-[#FF6B00] rounded-lg transition-all"><Instagram className="h-4 w-4" /></a>
-            <a href="#" className="p-2 bg-white/5 hover:bg-[#FF6B00]/20 text-gray-400 hover:text-[#FF6B00] rounded-lg transition-all"><Facebook className="h-4 w-4" /></a>
-            <a href="#" className="p-2 bg-white/5 hover:bg-[#FF6B00]/20 text-gray-400 hover:text-[#FF6B00] rounded-lg transition-all"><Twitter className="h-4 w-4" /></a>
+            <a href="#" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-[#FF6B00]/20 text-gray-500 dark:text-gray-400 hover:text-[#FF6B00] rounded-lg transition-all"><Instagram className="h-4 w-4" /></a>
+            <a href="#" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-[#FF6B00]/20 text-gray-500 dark:text-gray-400 hover:text-[#FF6B00] rounded-lg transition-all"><Facebook className="h-4 w-4" /></a>
+            <a href="#" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-[#FF6B00]/20 text-gray-500 dark:text-gray-400 hover:text-[#FF6B00] rounded-lg transition-all"><Twitter className="h-4 w-4" /></a>
           </div>
         </div>
 
         {/* Categories */}
         <div>
-          <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-widest">Categories</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-4 text-sm uppercase tracking-widest">Categories</h4>
           <ul className="space-y-2">
             {catHydrated && categories.slice(0, 8).map((cat) => (
               <li key={cat.id}>
-                <Link href={`/products?cat=${encodeURIComponent(cat.name)}`} className="text-sm text-gray-400 hover:text-[#FF6B00] transition-colors">
+                <Link href={`/products?cat=${encodeURIComponent(cat.name)}`} className="text-sm text-gray-600 dark:text-gray-400 hover:text-[#FF6B00] transition-colors">
                   {cat.name}
                 </Link>
               </li>
@@ -60,11 +60,11 @@ export function Footer() {
 
         {/* Company */}
         <div>
-          <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-widest">Company</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-4 text-sm uppercase tracking-widest">Company</h4>
           <ul className="space-y-2">
             {[["About Us", "/about"], ["Vendors", "/vendors"], ["Flash Sales", "/flash-sales"], ["Bulk Orders", "/bulk"], ["Become a Vendor", "/vendor/register"], ["Admin Portal", "/admin/login"]].map(([label, href]) => (
               <li key={label}>
-                <Link href={href} className="text-sm text-gray-400 hover:text-[#FF6B00] transition-colors">{label}</Link>
+                <Link href={href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-[#FF6B00] transition-colors">{label}</Link>
               </li>
             ))}
           </ul>
@@ -72,39 +72,39 @@ export function Footer() {
 
         {/* Contact */}
         <div>
-          <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-widest">Contact</h4>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-4 text-sm uppercase tracking-widest">Contact</h4>
           <ul className="space-y-3">
-            <li className="flex items-start gap-2 text-sm text-gray-400">
+            <li className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
               <MapPin className="h-4 w-4 text-[#FF6B00] shrink-0 mt-0.5" />
               Kigali, Rwanda
             </li>
-            <li className="flex items-center gap-2 text-sm text-gray-400">
+            <li className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <Phone className="h-4 w-4 text-[#FF6B00] shrink-0" />
               +250 788 628 417
             </li>
-            <li className="flex items-center gap-2 text-sm text-gray-400">
+            <li className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <Mail className="h-4 w-4 text-[#FF6B00] shrink-0" />
               info@byashara.com
             </li>
-            <li className="flex items-center gap-2 text-sm text-gray-400">
+            <li className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <MessageCircle className="h-4 w-4 text-[#25D366] shrink-0" />
               WhatsApp: +250 788 628 417
             </li>
           </ul>
-          <div className="mt-4 p-3 rounded-xl bg-white/5 border border-white/10">
-            <p className="text-xs text-gray-400">Delivery zones:</p>
-            <p className="text-xs font-semibold text-white mt-1">🇷🇼 All Rwanda Provinces</p>
-            <p className="text-xs font-semibold text-white">🇨🇩 Goma · Bukavu (DRC)</p>
+          <div className="mt-4 p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Delivery zones:</p>
+            <p className="text-xs font-semibold text-gray-900 dark:text-white mt-1">🇷🇼 All Rwanda Provinces</p>
+            <p className="text-xs font-semibold text-gray-900 dark:text-white">🇨🇩 Goma · Bukavu (DRC)</p>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10 max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+      <div className="border-t border-gray-200 dark:border-white/10 max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
         <p>© 2025 BYASHARA STORE — All rights reserved. Made in Rwanda 🇷🇼</p>
         <div className="flex items-center gap-4">
-          <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms</Link>
-          <Link href="/shipping" className="hover:text-gray-300 transition-colors">Shipping</Link>
+          <Link href="/privacy" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Privacy</Link>
+          <Link href="/terms" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Terms</Link>
+          <Link href="/shipping" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Shipping</Link>
         </div>
       </div>
     </footer>

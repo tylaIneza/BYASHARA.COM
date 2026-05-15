@@ -42,11 +42,11 @@ export default function HomePage() {
       <ProductSlider />
 
       {/* Brand marquee */}
-      <div className="py-3.5 border-b border-white/10 bg-[#111111] overflow-hidden">
+      <div className="py-3.5 border-b border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#111111] overflow-hidden">
         <div className="flex gap-10 marquee whitespace-nowrap">
           {["Samsung","Apple","Xiaomi","Huawei","Oppo","Infinix","Tecno","JBL","Sony","LG","HP","Dell","Lenovo","Canon","Hikvision",
             "Samsung","Apple","Xiaomi","Huawei","Oppo","Infinix","Tecno","JBL","Sony","LG","HP","Dell","Lenovo","Canon","Hikvision"].map((brand, i) => (
-            <span key={i} className="text-gray-600 font-bold text-[10px] tracking-widest uppercase">{brand}</span>
+            <span key={i} className="text-gray-400 dark:text-gray-600 font-bold text-[10px] tracking-widest uppercase">{brand}</span>
           ))}
         </div>
       </div>
@@ -55,12 +55,12 @@ export default function HomePage() {
       <section ref={productsRef} className="py-10 max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white mb-0.5">
+            <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-0.5">
               Featured <span className="text-gradient">Products</span>
             </h2>
-            <p className="text-gray-400 text-sm">Top wholesale picks — min. 1 unit</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Top wholesale picks — min. 1 unit</p>
           </div>
-          <Link href="/products" className="flex items-center gap-1 text-[#FF6B00] hover:text-white text-sm font-semibold transition-colors">
+          <Link href="/products" className="flex items-center gap-1 text-[#FF6B00] hover:text-gray-900 dark:hover:text-white text-sm font-semibold transition-colors">
             View all <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -72,7 +72,7 @@ export default function HomePage() {
                   <ProductCard key={product.id} product={product} index={i} />
                 ))
               : Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="rounded-2xl bg-[#111111] border border-white/10 overflow-hidden">
+                  <div key={i} className="rounded-2xl bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 overflow-hidden">
                     <div className="skeleton h-44" />
                     <div className="p-4 space-y-2">
                       <div className="skeleton h-3 w-16 rounded" />
@@ -97,12 +97,12 @@ export default function HomePage() {
       </section>
 
       {/* ── Categories ── */}
-      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 border-t border-white/10">
+      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 border-t border-gray-200 dark:border-white/10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl sm:text-2xl font-black text-white">
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
             Shop by <span className="text-gradient">Category</span>
           </h2>
-          <Link href="/products" className="hidden md:flex items-center gap-1 text-[#FF6B00] hover:text-white text-sm font-semibold transition-colors">
+          <Link href="/products" className="hidden md:flex items-center gap-1 text-[#FF6B00] hover:text-gray-900 dark:hover:text-white text-sm font-semibold transition-colors">
             View all <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -118,13 +118,13 @@ export default function HomePage() {
             >
               <Link
                 href={`/products?cat=${encodeURIComponent(cat.name)}`}
-                className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl border border-white/10 hover:border-[#FF6B00]/40 transition-all group"
+                className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl border border-gray-200 dark:border-white/10 hover:border-[#FF6B00]/40 transition-all group bg-white dark:bg-transparent"
                 style={{ background: cat.color + "12" }}
               >
-                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-[#FF6B00]/20 transition-colors text-lg sm:text-xl">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gray-100 dark:bg-white/10 flex items-center justify-center group-hover:bg-[#FF6B00]/20 transition-colors text-lg sm:text-xl">
                   {cat.emoji}
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-semibold text-gray-300 group-hover:text-white text-center leading-tight">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white text-center leading-tight">
                   {cat.name}
                 </span>
               </Link>
@@ -134,12 +134,12 @@ export default function HomePage() {
       </section>
 
       {/* ── Why choose us ── */}
-      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 border-t border-white/10">
+      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 border-t border-gray-200 dark:border-white/10">
         <div className="text-center mb-8">
-          <h2 className="text-xl sm:text-2xl font-black text-white mb-2">
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-2">
             Why <span className="text-gradient">BYASHARA STORE</span>
           </h2>
-          <p className="text-gray-400 text-sm">Built for African wholesale buyers</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Built for African wholesale buyers</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {FEATURES.map((f, i) => (
@@ -149,20 +149,20 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
-              className="p-5 rounded-2xl border border-white/10 bg-white/2 hover:border-white/20 transition-all group"
+              className="p-5 rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.02] hover:border-gray-300 dark:hover:border-white/20 transition-all group"
             >
-              <div className={`h-10 w-10 rounded-xl bg-white/5 group-hover:bg-white/10 flex items-center justify-center mb-3 transition-colors ${f.color}`}>
+              <div className={`h-10 w-10 rounded-xl bg-gray-100 dark:bg-white/5 group-hover:bg-gray-200 dark:group-hover:bg-white/10 flex items-center justify-center mb-3 transition-colors ${f.color}`}>
                 <f.icon className="h-5 w-5" />
               </div>
-              <h3 className="text-sm font-bold text-white mb-1">{f.title}</h3>
-              <p className="text-xs text-gray-400 leading-relaxed">{f.desc}</p>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{f.title}</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* ── Trust badges strip ── */}
-      <section className="border-t border-white/10 bg-[#0D0D0D]">
+      <section className="border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#0D0D0D]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { icon: Star,   label: "4.9/5 Rating",      sub: "2,400+ buyers" },
@@ -174,7 +174,7 @@ export default function HomePage() {
                 <b.icon className="h-4 w-4 text-[#FF6B00]" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-bold text-white">{b.label}</p>
+                <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{b.label}</p>
                 <p className="text-[10px] sm:text-[11px] text-gray-500">{b.sub}</p>
               </div>
             </div>
@@ -188,15 +188,15 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass-dark border border-white/10 rounded-3xl p-8 text-center"
+          className="glass-dark border border-gray-200 dark:border-white/10 rounded-3xl p-8 text-center"
         >
           <div className="h-14 w-14 rounded-full bg-[#25D366]/20 flex items-center justify-center mx-auto mb-4">
             <MessageCircle className="h-7 w-7 text-[#25D366]" />
           </div>
-          <h2 className="text-2xl font-black text-white mb-2">
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
             Order in <span className="text-gradient">60 Seconds</span>
           </h2>
-          <p className="text-gray-400 text-sm mb-6 max-w-lg mx-auto leading-relaxed">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-lg mx-auto leading-relaxed">
             No account. No password. Browse, select quantity, click WhatsApp — your order is auto-generated and sent instantly.
           </p>
           <Link

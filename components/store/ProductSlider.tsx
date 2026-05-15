@@ -76,7 +76,7 @@ export function ProductSlider() {
 
   return (
     <div
-      className="relative w-full overflow-hidden bg-[#080808]"
+      className="relative w-full overflow-hidden bg-gray-50 dark:bg-[#080808]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
@@ -103,7 +103,7 @@ export function ProductSlider() {
                              radial-gradient(ellipse at 20% 80%, #FF6B0015, transparent 50%)`,
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/80 to-transparent sm:via-[#080808]/60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-gray-50/80 to-transparent sm:via-gray-50/60 dark:from-[#080808] dark:via-[#080808]/80 dark:to-transparent dark:sm:via-[#080808]/60" />
 
             {/* ── Product image (right / top on mobile) ── */}
             <div className="absolute inset-0 flex items-center justify-end pointer-events-none">
@@ -131,7 +131,7 @@ export function ProductSlider() {
                   </span>
                 )}
                 {slide.category && (
-                  <span className="text-[10px] sm:text-xs text-gray-400 px-2 py-0.5 rounded-full bg-white/8 border border-white/10">
+                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full bg-black/8 dark:bg-white/8 border border-black/10 dark:border-white/10">
                     {slide.category}
                   </span>
                 )}
@@ -145,7 +145,7 @@ export function ProductSlider() {
               )}
 
               {/* Product name */}
-              <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-white leading-tight mb-2 sm:mb-3 line-clamp-2">
+              <h2 className="text-xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white leading-tight mb-2 sm:mb-3 line-clamp-2">
                 {slide.name}
               </h2>
 
@@ -156,24 +156,24 @@ export function ProductSlider() {
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-3 w-3 ${i < Math.round(slide.rating) ? "text-amber-400 fill-amber-400" : "text-gray-700"}`}
+                        className={`h-3 w-3 ${i < Math.round(slide.rating) ? "text-amber-400 fill-amber-400" : "text-gray-300 dark:text-gray-700"}`}
                       />
                     ))}
                   </div>
-                  <span className="text-[11px] text-gray-400">{slide.rating.toFixed(1)}</span>
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400">{slide.rating.toFixed(1)}</span>
                   {slide.soldCount > 0 && (
-                    <span className="text-[11px] text-gray-600">· {slide.soldCount}+ sold</span>
+                    <span className="text-[11px] text-gray-400 dark:text-gray-600">· {slide.soldCount}+ sold</span>
                   )}
                 </div>
               )}
 
               {/* Price */}
               <div className="flex items-baseline gap-2.5 mb-4 sm:mb-5">
-                <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">
+                <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">
                   {fmt(effectivePrice)}
                 </span>
                 {slide.salePrice && slide.salePrice < slide.price && (
-                  <span className="text-sm sm:text-base text-gray-500 line-through">
+                  <span className="text-sm sm:text-base text-gray-400 dark:text-gray-500 line-through">
                     {fmt(slide.price)}
                   </span>
                 )}
@@ -199,7 +199,7 @@ export function ProductSlider() {
                 </button>
                 <Link
                   href="/products"
-                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl bg-white/8 hover:bg-white/15 border border-white/10 text-white text-xs sm:text-sm font-semibold transition-all"
+                  className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl bg-black/8 dark:bg-white/8 hover:bg-black/15 dark:hover:bg-white/15 border border-black/10 dark:border-white/10 text-gray-900 dark:text-white text-xs sm:text-sm font-semibold transition-all"
                 >
                   Browse All <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
@@ -214,13 +214,13 @@ export function ProductSlider() {
         <>
           <button
             onClick={prev}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black/60 hover:bg-black/90 border border-white/10 flex items-center justify-center text-white transition-all backdrop-blur-sm"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/70 border border-black/10 dark:border-white/10 flex items-center justify-center text-white transition-all backdrop-blur-sm"
           >
             <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
           <button
             onClick={next}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black/60 hover:bg-black/90 border border-white/10 flex items-center justify-center text-white transition-all backdrop-blur-sm"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black/40 hover:bg-black/70 border border-black/10 dark:border-white/10 flex items-center justify-center text-white transition-all backdrop-blur-sm"
           >
             <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
@@ -228,7 +228,7 @@ export function ProductSlider() {
       )}
 
       {/* ── Bottom bar: dots + WhatsApp CTA ── */}
-      <div className="relative z-10 flex items-center justify-between px-5 sm:px-10 py-3 bg-gradient-to-r from-[#0D0D0D] to-[#111111] border-t border-white/5">
+      <div className="relative z-10 flex items-center justify-between px-5 sm:px-10 py-3 bg-gray-100 dark:bg-[#0D0D0D] border-t border-gray-200 dark:border-white/5">
         {/* Dots */}
         {total > 1 && (
           <div className="flex items-center gap-1.5">
@@ -239,7 +239,7 @@ export function ProductSlider() {
                 className={`rounded-full transition-all duration-300 ${
                   i === index
                     ? "w-5 h-1.5 bg-[#FF6B00]"
-                    : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
+                    : "w-1.5 h-1.5 bg-black/20 dark:bg-white/20 hover:bg-black/40 dark:hover:bg-white/40"
                 }`}
               />
             ))}
@@ -275,47 +275,47 @@ export function ProductSlider() {
 
 function SliderSkeleton() {
   return (
-    <div className="w-full bg-[#080808] border-b border-white/5">
+    <div className="w-full bg-gray-50 dark:bg-[#080808] border-b border-gray-200 dark:border-white/5">
       <div className="relative h-[300px] sm:h-[380px] lg:h-[460px] overflow-hidden">
         {/* Shimmer overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#111]/0 via-white/[0.03] to-[#111]/0 animate-pulse" />
+        <div className="absolute inset-0 animate-pulse bg-gray-100 dark:bg-white/[0.02]" />
         {/* Left text skeleton */}
         <div className="absolute left-5 sm:left-10 lg:left-16 top-1/2 -translate-y-1/2 space-y-4 w-[52%]">
-          <div className="h-5 w-20 rounded-full bg-white/5" />
+          <div className="h-5 w-20 rounded-full bg-gray-200 dark:bg-white/5" />
           <div className="space-y-2">
-            <div className="h-8 sm:h-10 w-full rounded-xl bg-white/5" />
-            <div className="h-8 sm:h-10 w-3/4 rounded-xl bg-white/5" />
+            <div className="h-8 sm:h-10 w-full rounded-xl bg-gray-200 dark:bg-white/5" />
+            <div className="h-8 sm:h-10 w-3/4 rounded-xl bg-gray-200 dark:bg-white/5" />
           </div>
-          <div className="h-6 w-32 rounded-lg bg-white/5" />
+          <div className="h-6 w-32 rounded-lg bg-gray-200 dark:bg-white/5" />
           <div className="flex gap-3 pt-1">
-            <div className="h-10 w-28 rounded-xl bg-white/5" />
-            <div className="h-10 w-24 rounded-xl bg-white/5" />
+            <div className="h-10 w-28 rounded-xl bg-gray-200 dark:bg-white/5" />
+            <div className="h-10 w-24 rounded-xl bg-gray-200 dark:bg-white/5" />
           </div>
         </div>
         {/* Right image skeleton */}
         <div className="absolute right-0 top-0 bottom-0 w-[50%] flex items-center justify-end pr-6 sm:pr-10 lg:pr-16">
-          <div className="h-48 sm:h-64 lg:h-80 w-full max-w-[260px] rounded-2xl bg-white/5" />
+          <div className="h-48 sm:h-64 lg:h-80 w-full max-w-[260px] rounded-2xl bg-gray-200 dark:bg-white/5" />
         </div>
       </div>
       {/* Bottom bar skeleton */}
-      <div className="h-10 bg-[#0D0D0D] border-t border-white/5" />
+      <div className="h-10 bg-gray-100 dark:bg-[#0D0D0D] border-t border-gray-200 dark:border-white/5" />
     </div>
   );
 }
 
 function FallbackBanner() {
   return (
-    <div className="relative w-full overflow-hidden bg-[#080808] border-b border-white/10">
+    <div className="relative w-full overflow-hidden bg-gray-50 dark:bg-[#080808] border-b border-gray-200 dark:border-white/10">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,107,0,0.12)_0%,_transparent_55%)]" />
       <div className="max-w-7xl mx-auto px-5 sm:px-10 py-14 sm:py-20 relative z-10 flex flex-col sm:flex-row items-center gap-8">
         <div className="flex-1">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-[#FF6B00]/15 border border-[#FF6B00]/30 text-[#FF6B00] mb-4">
             <Zap className="h-3 w-3" /> #1 Electronics Wholesale in Rwanda & DRC
           </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white leading-tight mb-3">
             Wholesale <span className="text-gradient">Electronics</span> for Africa
           </h1>
-          <p className="text-gray-400 text-sm sm:text-base mb-6 max-w-lg">
+          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base mb-6 max-w-lg">
             Smartphones, laptops, accessories and more — no account needed.
           </p>
           <div className="flex flex-wrap gap-3">

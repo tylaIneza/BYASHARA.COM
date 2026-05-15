@@ -37,8 +37,6 @@ export interface ProductCardData {
   featured?: boolean;
 }
 
-const WA_NUMBER = "+250788628417";
-
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
   const [qty, setQty] = useState(product.moq);
   const [imageError, setImageError] = useState(false);
@@ -86,7 +84,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
       className="group relative"
     >
       <Link href={`/products/${product.slug}`}>
-        <div className="relative bg-[#111111] border border-white/10 rounded-2xl overflow-hidden card-hover cursor-pointer">
+        <div className="relative bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden card-hover cursor-pointer">
           {/* Badges */}
           <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
             {product.featured && (
@@ -112,7 +110,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
           </div>
 
           {/* Image */}
-          <div className="relative h-48 sm:h-52 bg-[#1A1A1A] overflow-hidden">
+          <div className="relative h-48 sm:h-52 bg-gray-100 dark:bg-[#1A1A1A] overflow-hidden">
             {!imageError && product.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -123,7 +121,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
-                <Package className="h-16 w-16 text-gray-700" />
+                <Package className="h-16 w-16 text-gray-300 dark:text-gray-700" />
               </div>
             )}
           </div>
@@ -133,7 +131,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
             {product.brand && (
               <p className="text-[10px] font-semibold uppercase tracking-widest text-[#FF6B00] mb-1">{product.brand}</p>
             )}
-            <h3 className="text-sm font-semibold text-white line-clamp-2 group-hover:text-[#FF6B00] transition-colors leading-snug mb-1">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-[#FF6B00] transition-colors leading-snug mb-1">
               {product.name}
             </h3>
 
@@ -141,7 +139,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
               {(product.rating ?? 0) > 0 && (
                 <div className="flex items-center gap-1">
                   <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-                  <span className="text-[11px] text-gray-400">{product.rating?.toFixed(1)}</span>
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400">{product.rating?.toFixed(1)}</span>
                 </div>
               )}
               {(product.soldCount ?? 0) > 0 && (
@@ -151,28 +149,28 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
 
             {/* Price */}
             <div className="flex items-end gap-2 mb-2">
-              <span className="text-base font-bold text-white">{fmt(price, product.currency)}</span>
+              <span className="text-base font-bold text-gray-900 dark:text-white">{fmt(price, product.currency)}</span>
               {product.salePrice && (
-                <span className="text-xs text-gray-500 line-through">{fmt(product.price, product.currency)}</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500 line-through">{fmt(product.price, product.currency)}</span>
               )}
             </div>
 
             {/* MOQ */}
             <p className="text-[11px] text-gray-500 mb-3">
-              Min. order: <span className="text-gray-300 font-medium">{product.moq} units</span>
+              Min. order: <span className="text-gray-700 dark:text-gray-300 font-medium">{product.moq} units</span>
             </p>
 
             {/* Qty selector */}
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex items-center border border-white/10 rounded-xl overflow-hidden">
+              <div className="flex items-center border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden">
                 <button
                   onClick={(e) => { e.preventDefault(); setQty(Math.max(product.moq, qty - 1)); }}
-                  className="px-3 py-1.5 text-gray-300 hover:bg-white/10 text-sm font-bold transition-colors"
+                  className="px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 text-sm font-bold transition-colors"
                 >−</button>
-                <span className="px-3 py-1.5 text-sm text-white font-medium min-w-[3rem] text-center">{qty}</span>
+                <span className="px-3 py-1.5 text-sm text-gray-900 dark:text-white font-medium min-w-[3rem] text-center">{qty}</span>
                 <button
                   onClick={(e) => { e.preventDefault(); setQty(qty + 1); }}
-                  className="px-3 py-1.5 text-gray-300 hover:bg-white/10 text-sm font-bold transition-colors"
+                  className="px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 text-sm font-bold transition-colors"
                 >+</button>
               </div>
               <span className="text-xs text-[#FF6B00] font-semibold flex-1 text-right">
@@ -188,8 +186,8 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                 className={cn(
                   "flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all",
                   product.stock === 0
-                    ? "bg-gray-800 text-gray-600 cursor-not-allowed"
-                    : "bg-white/10 hover:bg-[#FF6B00]/20 text-white hover:text-[#FF6B00] border border-white/10 hover:border-[#FF6B00]/40"
+                    ? "bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                    : "bg-gray-100 dark:bg-white/10 hover:bg-[#FF6B00]/20 text-gray-800 dark:text-white hover:text-[#FF6B00] border border-gray-200 dark:border-white/10 hover:border-[#FF6B00]/40"
                 )}
               >
                 <ShoppingBag className="h-3.5 w-3.5" /> Add to Cart

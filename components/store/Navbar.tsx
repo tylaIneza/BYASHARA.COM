@@ -53,8 +53,8 @@ export function Navbar() {
         className={cn(
           "sticky top-0 z-50 transition-all duration-300",
           scrolled
-            ? "glass-dark shadow-2xl shadow-black/50"
-            : "bg-[#0A0A0A]/95 backdrop-blur-sm"
+            ? "glass-dark shadow-2xl shadow-black/10 dark:shadow-black/50"
+            : "bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-gray-200 dark:border-white/5"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -65,30 +65,30 @@ export function Navbar() {
                 <Zap className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="text-lg font-black tracking-tight text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
+                <span className="text-lg font-black tracking-tight text-gray-900 dark:text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
               </div>
             </Link>
 
             {/* Desktop Nav */}
             <div className="hidden lg:flex items-center gap-6">
               <div className="relative group">
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white text-sm font-medium transition-colors">
+                <button className="flex items-center gap-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors">
                   Categories <ChevronDown className="h-4 w-4 group-hover:rotate-180 transition-transform" />
                 </button>
-                <div className="absolute top-full left-0 w-56 mt-2 glass-dark rounded-2xl border border-white/10 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
+                <div className="absolute top-full left-0 w-56 mt-2 glass-dark rounded-2xl border border-gray-200 dark:border-white/10 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all shadow-2xl">
                   {catHydrated && categories.map((cat) => (
                     <Link
                       key={cat.id}
                       href={`/products?cat=${encodeURIComponent(cat.name)}`}
-                      className="block px-4 py-2 text-sm text-gray-300 hover:text-[#FF6B00] hover:bg-white/5 transition-colors"
+                      className="block px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-[#FF6B00] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                     >
                       {cat.emoji} {cat.name}
                     </Link>
                   ))}
                 </div>
               </div>
-              <Link href="/products" className="text-gray-300 hover:text-white text-sm font-medium transition-colors">All Products</Link>
-              <Link href="/vendors" className="text-gray-300 hover:text-white text-sm font-medium transition-colors">Vendors</Link>
+              <Link href="/products" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors">All Products</Link>
+              <Link href="/vendors" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors">Vendors</Link>
               <Link href="/flash-sales" className="text-sm font-medium text-[#FF6B00] flex items-center gap-1">
                 <Zap className="h-3.5 w-3.5" /> Flash Sales
               </Link>
@@ -99,25 +99,25 @@ export function Navbar() {
               {/* Search */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="hidden md:flex items-center gap-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl px-4 py-2 text-sm border border-white/10 transition-all"
+                className="hidden md:flex items-center gap-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-xl px-4 py-2 text-sm border border-gray-200 dark:border-white/10 transition-all"
               >
                 <Search className="h-4 w-4" />
                 <span>Search electronics…</span>
               </button>
-              <button onClick={() => setSearchOpen(true)} className="md:hidden p-2 text-gray-300 hover:text-white">
+              <button onClick={() => setSearchOpen(true)} className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                 <Search className="h-5 w-5" />
               </button>
 
               {/* Theme toggle */}
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="p-2 text-gray-300 hover:text-white rounded-lg hover:bg-white/10 transition-all"
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
               >
                 {mounted ? (theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />) : <Sun className="h-5 w-5" />}
               </button>
 
-              {/* WhatsApp Cart */}
-              <Link href="/cart" className="relative p-2 text-gray-300 hover:text-white">
+              {/* Cart */}
+              <Link href="/cart" className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                 <ShoppingBag className="h-5 w-5" />
                 {mounted && itemCount > 0 && (
                   <motion.span
@@ -141,7 +141,7 @@ export function Navbar() {
               {/* Mobile menu */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="lg:hidden p-2 text-gray-300 hover:text-white"
+                className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
                 {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
@@ -156,21 +156,21 @@ export function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden border-t border-white/10 bg-[#0A0A0A]"
+              className="lg:hidden border-t border-gray-200 dark:border-white/10 bg-white dark:bg-[#0A0A0A]"
             >
               <div className="px-4 py-4 space-y-1">
                 {catHydrated && categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/products?cat=${encodeURIComponent(cat.name)}`}
-                    className="block py-2.5 px-4 text-sm text-gray-300 hover:text-[#FF6B00] hover:bg-white/5 rounded-xl transition-colors"
+                    className="block py-2.5 px-4 text-sm text-gray-600 dark:text-gray-300 hover:text-[#FF6B00] hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors"
                     onClick={() => setMenuOpen(false)}
                   >
                     {cat.emoji} {cat.name}
                   </Link>
                 ))}
-                <hr className="border-white/10 my-2" />
-                <Link href="/products" className="block py-2.5 px-4 text-sm text-gray-300 hover:text-white rounded-xl" onClick={() => setMenuOpen(false)}>All Products</Link>
+                <hr className="border-gray-200 dark:border-white/10 my-2" />
+                <Link href="/products" className="block py-2.5 px-4 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-xl" onClick={() => setMenuOpen(false)}>All Products</Link>
                 <Link href="/flash-sales" className="block py-2.5 px-4 text-sm text-[#FF6B00] font-semibold rounded-xl" onClick={() => setMenuOpen(false)}>⚡ Flash Sales</Link>
                 <Link href="/cart" className="flex items-center gap-2 py-2.5 px-4 text-sm text-[#25D366] font-semibold rounded-xl" onClick={() => setMenuOpen(false)}>
                   <MessageCircle className="h-4 w-4" /> Order via WhatsApp
@@ -188,14 +188,14 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-start justify-center pt-4 sm:pt-20 px-4"
+            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-start justify-center pt-4 sm:pt-20 px-4"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className="w-full max-w-2xl glass-dark rounded-2xl border border-white/10 p-4"
+              className="w-full max-w-2xl glass-dark rounded-2xl border border-gray-200 dark:border-white/10 p-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3">
@@ -206,7 +206,7 @@ export function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search electronics — smartphones, laptops, accessories..."
-                  className="flex-1 bg-transparent text-white text-lg outline-none placeholder:text-gray-500"
+                  className="flex-1 bg-transparent text-gray-900 dark:text-white text-lg outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && searchQuery.trim()) {
                       window.location.href = `/products?q=${encodeURIComponent(searchQuery)}`;
@@ -214,7 +214,7 @@ export function Navbar() {
                     if (e.key === "Escape") setSearchOpen(false);
                   }}
                 />
-                <button onClick={() => setSearchOpen(false)} className="p-1 text-gray-400 hover:text-white">
+                <button onClick={() => setSearchOpen(false)} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -223,7 +223,7 @@ export function Navbar() {
                   <button
                     key={tag}
                     onClick={() => { setSearchQuery(tag); }}
-                    className="px-3 py-1 text-xs bg-white/5 hover:bg-[#FF6B00]/20 text-gray-300 hover:text-[#FF6B00] rounded-full border border-white/10 transition-all"
+                    className="px-3 py-1 text-xs bg-gray-100 dark:bg-white/5 hover:bg-[#FF6B00]/20 text-gray-600 dark:text-gray-300 hover:text-[#FF6B00] rounded-full border border-gray-200 dark:border-white/10 transition-all"
                   >
                     {tag}
                   </button>
