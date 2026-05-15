@@ -25,6 +25,7 @@ export interface Customer {
 
 interface CustomerStore {
   customers: Customer[];
+  hydrated: boolean;
   recordOrder: (params: {
     name: string;
     location: string;
@@ -40,6 +41,7 @@ export const useCustomerStore = create<CustomerStore>()(
   persist(
     (set, get) => ({
       customers: [],
+      hydrated: false,
       recordOrder: ({ name, location, total, items, isRetail }) => {
         const trimmed = name.trim();
         const now = Date.now();
@@ -87,6 +89,12 @@ export const useCustomerStore = create<CustomerStore>()(
         set((s) => ({ customers: s.customers.filter((c) => c.id !== id) })),
       clearAll: () => set({ customers: [] }),
     }),
-    { name: "byashara-customers" }
+    {
+      name: "byashara-customers",
+      skipHydration: true,
+      onRehydrateStorage: () => (_state, error) => {
+        if (!error) setTimeout(() => useCustomerStore.setState({ hydrated: true }), 0);
+      },
+    }
   )
 );

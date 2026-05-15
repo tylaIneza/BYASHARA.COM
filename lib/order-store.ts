@@ -26,6 +26,7 @@ export interface Order {
 
 interface OrderStore {
   orders: Order[];
+  hydrated: boolean;
   addOrder: (o: Omit<Order, "id" | "status" | "createdAt">) => void;
   updateStatus: (id: string, status: OrderStatus) => void;
   deleteOrder: (id: string) => void;
@@ -40,6 +41,7 @@ export const useOrderStore = create<OrderStore>()(
   persist(
     (set) => ({
       orders: [],
+      hydrated: false,
       addOrder: (o) =>
         set((s) => ({
           orders: [
@@ -60,6 +62,12 @@ export const useOrderStore = create<OrderStore>()(
         set((s) => ({ orders: s.orders.filter((o) => o.id !== id) })),
       clearAll: () => set({ orders: [] }),
     }),
-    { name: "byashara-orders" }
+    {
+      name: "byashara-orders",
+      skipHydration: true,
+      onRehydrateStorage: () => (_state, error) => {
+        if (!error) setTimeout(() => useOrderStore.setState({ hydrated: true }), 0);
+      },
+    }
   )
 );

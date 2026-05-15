@@ -17,6 +17,7 @@ export interface AppNotification {
 
 interface NotificationStore {
   notifications: AppNotification[];
+  hydrated: boolean;
   browserPermission: NotificationPermission | "default";
   unreadCount: () => number;
   add: (n: Pick<AppNotification, "type" | "title" | "body" | "link">) => void;
@@ -31,6 +32,7 @@ export const useNotificationStore = create<NotificationStore>()(
   persist(
     (set, get) => ({
       notifications: [],
+      hydrated: false,
       browserPermission: "default",
       unreadCount: () => get().notifications.filter((n) => !n.read).length,
       add: (n) => {
@@ -67,7 +69,11 @@ export const useNotificationStore = create<NotificationStore>()(
     }),
     {
       name: "byashara-notifications",
+      skipHydration: true,
       partialize: (s) => ({ notifications: s.notifications }),
+      onRehydrateStorage: () => (_state, error) => {
+        if (!error) setTimeout(() => useNotificationStore.setState({ hydrated: true }), 0);
+      },
     }
   )
 );
