@@ -27,14 +27,14 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
         {/* Brand */}
-        <div className="col-span-2 md:col-span-1">
+        <div className="col-span-1 sm:col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-black text-white">BOUTIQUE <span className="text-[#FF6B00]">BYASHARA</span></span>
+            <span className="text-lg font-black text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
           </div>
           <p className="text-sm text-gray-400 leading-relaxed">
             Rwanda & Eastern DRC&apos;s #1 electronics wholesale marketplace. Powering businesses with bulk tech.
@@ -82,7 +82,7 @@ export function Footer() {
             </li>
             <li className="flex items-center gap-2 text-sm text-gray-400">
               <Phone className="h-4 w-4 text-[#FF6B00] shrink-0" />
-              +250 780 000 000
+              +250 788 628 417
             </li>
             <li className="flex items-center gap-2 text-sm text-gray-400">
               <Mail className="h-4 w-4 text-[#FF6B00] shrink-0" />
@@ -90,7 +90,7 @@ export function Footer() {
             </li>
             <li className="flex items-center gap-2 text-sm text-gray-400">
               <MessageCircle className="h-4 w-4 text-[#25D366] shrink-0" />
-              WhatsApp: +250 780 000 000
+              WhatsApp: +250 788 628 417
             </li>
           </ul>
           <div className="mt-4 p-3 rounded-xl bg-white/5 border border-white/10">
@@ -102,7 +102,7 @@ export function Footer() {
       </div>
 
       <div className="border-t border-white/10 max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-        <p>© 2025 BOUTIQUE BYASHARA — All rights reserved. Made in Rwanda 🇷🇼</p>
+        <p>© 2025 BYASHARA STORE — All rights reserved. Made in Rwanda 🇷🇼</p>
         <div className="flex items-center gap-4">
           <Link href="/privacy" className="hover:text-gray-300 transition-colors">Privacy</Link>
           <Link href="/terms" className="hover:text-gray-300 transition-colors">Terms</Link>

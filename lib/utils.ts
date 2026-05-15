@@ -48,7 +48,7 @@ export function generateWhatsAppMessage(
   const hasRetail = items.some((i) => i.isRetail);
   const orderType = hasRetail ? "Retail Order" : "Wholesale Order";
   const lines: string[] = [];
-  lines.push(`🛒 *BOUTIQUE BYASHARA — ${orderType}*`);
+  lines.push(`🛒 *BYASHARA STORE — ${orderType}*`);
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   if (customerName) lines.push(`👤 *Customer:* ${customerName}`);
   if (province) lines.push(`📍 *Delivery:* ${province}`);

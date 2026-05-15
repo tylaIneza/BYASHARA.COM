@@ -106,7 +106,7 @@ export default function HomePage() {
             View all <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3">
           {catHydrated && categories.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -137,7 +137,7 @@ export default function HomePage() {
       <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 border-t border-white/10">
         <div className="text-center mb-8">
           <h2 className="text-xl sm:text-2xl font-black text-white mb-2">
-            Why <span className="text-gradient">BOUTIQUE BYASHARA</span>
+            Why <span className="text-gradient">BYASHARA STORE</span>
           </h2>
           <p className="text-gray-400 text-sm">Built for African wholesale buyers</p>
         </div>
@@ -163,13 +163,13 @@ export default function HomePage() {
 
       {/* ── Trust badges strip ── */}
       <section className="border-t border-white/10 bg-[#0D0D0D]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-3 gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { icon: Star,   label: "4.9/5 Rating",      sub: "2,400+ buyers" },
             { icon: Truck,  label: "Fast Delivery",      sub: "All Rwanda + DRC" },
             { icon: Shield, label: "Verified Vendors",   sub: "320+ suppliers" },
           ].map((b) => (
-            <div key={b.label} className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 text-center sm:text-left">
+            <div key={b.label} className="flex flex-row items-center gap-3 text-left">
               <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-[#FF6B00]/10 flex items-center justify-center shrink-0">
                 <b.icon className="h-4 w-4 text-[#FF6B00]" />
               </div>

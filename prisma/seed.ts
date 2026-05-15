@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding BOUTIQUE BYASHARA database...");
+  console.log("🌱 Seeding BYASHARA STORE database...");
 
   // Default admin user
   const adminPassword = await bcrypt.hash("admin@123", 12);
@@ -13,7 +13,7 @@ async function main() {
     update: {},
     create: {
       email: "admin@byashara.com",
-      name: "Boutique Byashara Admin",
+      name: "Byashara Store Admin",
       password: adminPassword,
       role: "SUPER_ADMIN",
     },

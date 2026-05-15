@@ -36,7 +36,7 @@ export function Navbar() {
       <div className="bg-[#FF6B00] text-white text-xs py-2 px-4 hidden md:flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <Phone className="h-3 w-3" /> +250 780 000 000
+            <Phone className="h-3 w-3" /> +250 788 628 417
           </span>
           <span>|</span>
           <span>Rwanda · Goma · Bukavu delivery available</span>
@@ -65,7 +65,7 @@ export function Navbar() {
                 <Zap className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="text-lg font-black tracking-tight text-white">BOUTIQUE <span className="text-[#FF6B00]">BYASHARA</span></span>
+                <span className="text-lg font-black tracking-tight text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
               </div>
             </Link>
 
@@ -99,7 +99,7 @@ export function Navbar() {
               {/* Search */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="hidden md:flex items-center gap-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl px-4 py-2 text-sm border border-white/10 transition-all w-48"
+                className="hidden md:flex items-center gap-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl px-4 py-2 text-sm border border-white/10 transition-all"
               >
                 <Search className="h-4 w-4" />
                 <span>Search electronics…</span>
@@ -190,7 +190,7 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-start justify-center pt-20 px-4"
+            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-start justify-center pt-4 sm:pt-20 px-4"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div

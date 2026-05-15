@@ -154,7 +154,7 @@ export default function AdminDashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">BOUTIQUE BYASHARA — Live Analytics</p>
+          <p className="text-sm text-gray-500 mt-0.5">BYASHARA STORE — Live Analytics</p>
         </div>
         <span className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-3 py-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live

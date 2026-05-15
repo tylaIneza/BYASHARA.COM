@@ -70,7 +70,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
     const waNum = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? WA_NUMBER;
     const msg = encodeURIComponent(
       [
-        `🛒 *BOUTIQUE BYASHARA — Quick Order*`,
+        `🛒 *BYASHARA STORE — Quick Order*`,
         `━━━━━━━━━━━━━━━━━━`,
         `📦 *${product.name}*`,
         `• SKU: ${product.sku}`,
