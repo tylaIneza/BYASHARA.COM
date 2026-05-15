@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatCurrency, generateWhatsAppMessage } from "@/lib/utils";
+import { useNotificationStore } from "@/lib/notification-store";
 
 const PROVINCES = [
   // Rwanda
@@ -27,6 +28,7 @@ const effectiveUnitPrice = (price: number, qty: number) =>
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart } = useCartStore();
+  const addNotification = useNotificationStore((s) => s.add);
   const [province, setProvince] = useState("");
   const [customerName, setCustomerName] = useState("");
 
@@ -57,6 +59,12 @@ export default function CartPage() {
     }));
     const msg = generateWhatsAppMessage(adjustedItems, province, customerName, transportFee);
     window.open(`https://wa.me/${whatsappNumber.replace(/\s/g, "")}?text=${msg}`, "_blank");
+    addNotification({
+      type: "order",
+      title: "New WhatsApp order",
+      body: `${customerName} from ${province} sent an order for ${items.length} item${items.length === 1 ? "" : "s"} — ${formatCurrency(grandTotal)}.`,
+      link: "/admin/orders",
+    });
   };
 
   if (items.length === 0) {

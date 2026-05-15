@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Pencil, Trash2, Check, X, Layers, Save } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCategoryStore, type Category } from "@/lib/category-store";
+import { useNotificationStore } from "@/lib/notification-store";
 import { slugify } from "@/lib/utils";
 
 const EMOJI_OPTIONS = ["📱","💻","📺","🔊","📡","📷","🎮","☀️","🏠","🔌","🖨️","🔧","⌚","🖥️","🎧","📦","🔋","🛡️","💡","🖱️","🖲️","🎙️","📻","🔭"];
@@ -25,6 +26,7 @@ const EMPTY_FORM: FormState = { name: "", description: "", emoji: "📦", color:
 
 export default function AdminCategoriesPage() {
   const { categories, addCategory, updateCategory, deleteCategory } = useCategoryStore();
+  const addNotification = useNotificationStore((s) => s.add);
 
   const [mode, setMode] = useState<"idle" | "add" | "edit">("idle");
   const [editId, setEditId] = useState<string | null>(null);
@@ -69,6 +71,7 @@ export default function AdminCategoriesPage() {
         color: form.color,
       });
       toast.success("Category updated!");
+      addNotification({ type: "category", title: "Category updated", body: `"${form.name.trim()}" was updated.`, link: "/admin/categories" });
     } else {
       addCategory({
         id: `cat-${Date.now()}`,
@@ -79,6 +82,7 @@ export default function AdminCategoriesPage() {
         color: form.color,
       });
       toast.success("Category added!");
+      addNotification({ type: "category", title: "Category created", body: `"${form.name.trim()}" was added to your storefront.`, link: "/admin/categories" });
     }
     closeForm();
   };
@@ -87,6 +91,7 @@ export default function AdminCategoriesPage() {
     if (confirm(`Delete "${cat.name}"? Products in this category will keep their category label.`)) {
       deleteCategory(cat.id);
       toast.success(`"${cat.name}" deleted.`);
+      addNotification({ type: "category", title: "Category deleted", body: `"${cat.name}" was removed from the storefront.`, link: "/admin/categories" });
     }
   };
 

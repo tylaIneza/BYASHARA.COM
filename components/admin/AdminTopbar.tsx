@@ -4,11 +4,14 @@ import { useState, useEffect } from "react";
 import { Bell, Search, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useNotificationStore } from "@/lib/notification-store";
 
 export function AdminTopbar() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+  const unreadCount = useNotificationStore((s) => s.unreadCount());
 
   useEffect(() => setMounted(true), []);
 
@@ -29,10 +32,19 @@ export function AdminTopbar() {
         >
           {mounted ? (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />) : <Sun className="h-4 w-4" />}
         </button>
-        <button className="relative p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white border border-white/10 transition-all">
+
+        <Link
+          href="/admin/notifications"
+          className="relative p-2 rounded-xl bg-white/5 text-gray-400 hover:text-white border border-white/10 transition-all"
+        >
           <Bell className="h-4 w-4" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#FF6B00]" />
-        </button>
+          {mounted && unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6B00] text-[9px] font-bold text-white">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </Link>
+
         <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
           <div className="h-7 w-7 rounded-full gradient-orange flex items-center justify-center text-white text-xs font-bold">
             {session?.user?.name?.[0] ?? "A"}

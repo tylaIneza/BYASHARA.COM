@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useProductStore, fileToBase64 } from "@/lib/product-store";
 import { useCategoryStore } from "@/lib/category-store";
+import { useNotificationStore } from "@/lib/notification-store";
 import { slugify } from "@/lib/utils";
 const CONDITIONS = ["NEW", "REFURBISHED", "OPEN_BOX"];
 const CURRENCIES = ["RWF", "USD", "CDF"];
@@ -31,6 +32,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const { addProduct } = useProductStore();
   const { categories } = useCategoryStore();
+  const addNotification = useNotificationStore((s) => s.add);
 
   const [activeTab, setActiveTab] = useState<"basic" | "pricing" | "media" | "specs" | "shipping">("basic");
   const [saving, setSaving] = useState(false);
@@ -137,6 +139,12 @@ export default function NewProductPage() {
           ? "Product saved as draft."
           : "Product published and live on the store!"
       );
+      addNotification({
+        type: "product",
+        title: status === "DRAFT" ? "Product saved as draft" : "New product published",
+        body: `"${name}" is ${status === "DRAFT" ? "saved as a draft" : "now live on the storefront"}.`,
+        link: "/admin/products",
+      });
       router.push("/admin/products");
     } catch {
       toast.error("Failed to save. Try using smaller images.");

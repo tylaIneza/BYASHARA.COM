@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 import { useProductStore } from "@/lib/product-store";
+import { useNotificationStore } from "@/lib/notification-store";
 
 const STATUS_CONFIG = {
   ACTIVE: { label: "Active", color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/20" },
@@ -19,6 +20,7 @@ const STATUS_CONFIG = {
 
 export default function AdminProductsPage() {
   const { products, updateProduct, deleteProduct } = useProductStore();
+  const addNotification = useNotificationStore((s) => s.add);
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -189,7 +191,10 @@ export default function AdminProductsPage() {
                       <div className="flex items-center gap-1.5">
                         {product.status !== "ACTIVE" && (
                           <button
-                            onClick={() => updateProduct(product.id, { status: "ACTIVE" })}
+                            onClick={() => {
+                              updateProduct(product.id, { status: "ACTIVE" });
+                              addNotification({ type: "product", title: "Product approved", body: `"${product.name}" is now live on the storefront.`, link: "/admin/products" });
+                            }}
                             title="Approve"
                             className="p-1.5 rounded-lg text-gray-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all"
                           >
@@ -198,7 +203,10 @@ export default function AdminProductsPage() {
                         )}
                         {product.status === "ACTIVE" && (
                           <button
-                            onClick={() => updateProduct(product.id, { status: "DRAFT" })}
+                            onClick={() => {
+                              updateProduct(product.id, { status: "DRAFT" });
+                              addNotification({ type: "product", title: "Product deactivated", body: `"${product.name}" has been moved to draft.`, link: "/admin/products" });
+                            }}
                             title="Deactivate"
                             className="p-1.5 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all"
                           >
@@ -212,6 +220,7 @@ export default function AdminProductsPage() {
                           onClick={() => {
                             if (confirm(`Delete "${product.name}"? This cannot be undone.`)) {
                               deleteProduct(product.id);
+                              addNotification({ type: "product", title: "Product deleted", body: `"${product.name}" was permanently removed.`, link: "/admin/products" });
                             }
                           }}
                           title="Delete"
