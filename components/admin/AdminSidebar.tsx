@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Zap, LayoutDashboard, Package, Users, ShoppingBag,
+  LayoutDashboard, Package, Users, ShoppingBag,
   MessageCircle, BarChart2, Truck, Tag, Settings,
   Store, Bell, ChevronRight, Warehouse, LogOut, UsersRound, Layers, X,
 } from "lucide-react";
@@ -34,8 +34,8 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange shrink-0">
-          <Zap className="h-5 w-5 text-white" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E30000] shrink-0">
+          <span className="text-sm font-black text-white tracking-tight leading-none">BS</span>
         </div>
         <div className="min-w-0">
           <span className="text-sm font-black text-white leading-tight block truncate">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>

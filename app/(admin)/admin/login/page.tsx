@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Zap, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function AdminLoginPage() {
@@ -32,8 +32,8 @@ export default function AdminLoginPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(0,0,0,0.3)_0%,_transparent_60%)]" />
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
-              <Zap className="h-7 w-7 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E30000]">
+              <span className="text-lg font-black text-white tracking-tight leading-none">BS</span>
             </div>
             <div>
               <div className="text-2xl font-black text-white">BYASHARA <span className="text-white/70">STORE</span></div>
@@ -75,8 +75,8 @@ export default function AdminLoginPage() {
           className="w-full max-w-md"
         >
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange">
-              <Zap className="h-5 w-5 text-white" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E30000]">
+              <span className="text-sm font-black text-white tracking-tight leading-none">BS</span>
             </div>
             <span className="text-lg font-black text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
           </div>
