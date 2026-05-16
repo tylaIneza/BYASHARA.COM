@@ -422,14 +422,14 @@ export default function CartPage() {
                       </p>
                       <p className="text-[11px] text-gray-400 mb-3 leading-relaxed">
                         {paymentMethod === "momo"
-                          ? "Pay via MTN MoMo first, then enter your MoMo transaction ID below."
-                          : "Transfer to Equity Bank first, then enter your bank reference number below."}
+                          ? "Pay via MTN MoMo first, then enter the name on the MoMo account you paid from."
+                          : "Transfer to Equity Bank first, then enter the name on the account you paid from."}
                       </p>
                       <div className="relative">
-                        <Receipt className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${touched && missingPaymentRef ? "text-red-400" : "text-gray-500"}`} />
+                        <User className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${touched && missingPaymentRef ? "text-red-400" : "text-gray-500"}`} />
                         <input
                           type="text"
-                          placeholder={paymentMethod === "momo" ? "e.g. 1234567890 (MoMo TxID) *" : "e.g. REF123456 (Bank reference) *"}
+                          placeholder="Full name used for payment *"
                           value={paymentRef}
                           onChange={(e) => setPaymentRef(e.target.value)}
                           className={`w-full bg-white/5 border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none transition-colors ${
@@ -440,7 +440,7 @@ export default function CartPage() {
                         />
                       </div>
                       {touched && missingPaymentRef && (
-                        <p className="text-[10px] text-red-400 mt-1.5">⚠ Payment reference is required for retail orders</p>
+                        <p className="text-[10px] text-red-400 mt-1.5">⚠ Name used for payment is required for retail orders</p>
                       )}
                     </div>
                   </motion.div>
@@ -504,7 +504,7 @@ export default function CartPage() {
             {touched && (missingName || missingLocation || missingPaymentRef) && (
               <p className="text-[11px] text-red-400 text-center mt-2 leading-relaxed font-medium">
                 {missingPaymentRef
-                  ? "⚠ Pay first and enter your payment reference to continue."
+                  ? "⚠ Pay first and enter the name used for payment to continue."
                   : missingName && missingLocation
                   ? "⚠ Please enter your name and select a delivery location."
                   : missingName
@@ -566,16 +566,16 @@ export default function CartPage() {
                   <p>  🏢 Bank: Equity Bank</p>
                   <p>  💳 Account: 4003113111925</p>
                   <p>  👤 Ineza Pacifique</p>
-                  {paymentRef && <p>  ✅ Ref: {paymentRef}</p>}
-                  {!paymentRef && hasRetailItems && <p>  📎 Proof of payment required</p>}
+                  {paymentRef && <p>  ✅ Paid by: {paymentRef}</p>}
+                  {!paymentRef && hasRetailItems && <p>  ⚠ Payer name required</p>}
                 </>
               ) : (
                 <>
                   <p className="font-bold">💳 Payment via MTN MoMo:</p>
                   <p>  📱 +250 788 628 417</p>
                   <p>  👤 Ineza Pacifique</p>
-                  {paymentRef && <p>  ✅ TxID: {paymentRef}</p>}
-                  {!paymentRef && hasRetailItems && <p>  ⚠ Transaction ID required</p>}
+                  {paymentRef && <p>  ✅ Paid by: {paymentRef}</p>}
+                  {!paymentRef && hasRetailItems && <p>  ⚠ Payer name required</p>}
                 </>
               )}
             </div>

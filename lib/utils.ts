@@ -84,13 +84,13 @@ export function generateWhatsAppMessage(
     lines.push("   🏢 Bank: Equity Bank");
     lines.push("   💳 Account No: 4003113111925");
     lines.push("   👤 Name: Ineza Pacifique");
-    if (paymentRef) lines.push(`   ✅ Reference: ${paymentRef}`);
+    if (paymentRef) lines.push(`   ✅ Paid by: ${paymentRef}`);
     else lines.push("   📎 Please send proof of payment on WhatsApp.");
   } else {
     lines.push("💳 *Payment via MTN MoMo:*");
     lines.push("   📱 Number: +250 788 628 417");
     lines.push("   👤 Name: Ineza Pacifique");
-    if (paymentRef) lines.push(`   ✅ Transaction ID: ${paymentRef}`);
+    if (paymentRef) lines.push(`   ✅ Paid by: ${paymentRef}`);
   }
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   lines.push("📞 Please confirm this order. Thank you!");
