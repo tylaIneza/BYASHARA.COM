@@ -34,7 +34,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E30000] shrink-0">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange shrink-0">
           <span className="text-sm font-black text-white tracking-tight leading-none">BS</span>
         </div>
         <div className="min-w-0">

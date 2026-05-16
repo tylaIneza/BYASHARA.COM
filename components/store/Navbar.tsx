@@ -61,7 +61,7 @@ export function Navbar() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E30000] shrink-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange shrink-0">
                 <span className="text-sm font-black text-white tracking-tight leading-none">BS</span>
               </div>
               <div>

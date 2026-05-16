@@ -29,7 +29,7 @@ export function Footer() {
         {/* Brand */}
         <div className="col-span-1 sm:col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E30000] shrink-0">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange shrink-0">
               <span className="text-sm font-black text-white tracking-tight leading-none">BS</span>
             </div>
             <span className="text-lg font-black text-gray-900 dark:text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>

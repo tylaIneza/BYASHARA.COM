@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(0,0,0,0.3)_0%,_transparent_60%)]" />
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E30000]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl gradient-orange">
               <span className="text-lg font-black text-white tracking-tight leading-none">BS</span>
             </div>
             <div>
@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
           className="w-full max-w-md"
         >
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E30000]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-orange">
               <span className="text-sm font-black text-white tracking-tight leading-none">BS</span>
             </div>
             <span className="text-lg font-black text-white">BYASHARA <span className="text-[#FF6B00]">STORE</span></span>
