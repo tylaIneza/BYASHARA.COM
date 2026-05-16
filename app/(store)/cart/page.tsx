@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   ShoppingBag, MessageCircle, Trash2, Plus, Minus, Package,
-  ArrowRight, MapPin, User, Info, AlertTriangle, Truck, Smartphone, Building2, CheckCircle2,
+  ArrowRight, MapPin, User, Info, AlertTriangle, Truck, Smartphone, Building2, CheckCircle2, Receipt,
 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatCurrency, generateWhatsAppMessage } from "@/lib/utils";
@@ -36,6 +36,7 @@ export default function CartPage() {
   const [province, setProvince] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"momo" | "bank">("momo");
+  const [paymentRef, setPaymentRef] = useState("");
   const [touched, setTouched] = useState(false);
   const [shake, setShake] = useState(false);
 
@@ -55,7 +56,8 @@ export default function CartPage() {
   const missingName = customerName.trim() === "";
   const missingLocation = province === "";
   const retailBlockedByLocation = hasRetailItems && !missingLocation && !isKigali;
-  const canOrder = !missingName && !missingLocation && !retailBlockedByLocation;
+  const missingPaymentRef = hasRetailItems && paymentRef.trim() === "";
+  const canOrder = !missingName && !missingLocation && !retailBlockedByLocation && !missingPaymentRef;
 
   const handleOrderWhatsApp = () => {
     setTouched(true);
@@ -69,7 +71,7 @@ export default function CartPage() {
       price: effectiveUnitPrice(i.price, i.quantity),
       isRetail: isRetailItem(i.quantity),
     }));
-    const msg = generateWhatsAppMessage(adjustedItems, province, customerName, transportFee, paymentMethod);
+    const msg = generateWhatsAppMessage(adjustedItems, province, customerName, transportFee, paymentMethod, paymentRef.trim() || undefined);
     window.open(`https://wa.me/${whatsappNumber.replace(/\s/g, "")}?text=${msg}`, "_blank");
     const orderItems = adjustedItems.map((i) => ({ name: i.name, qty: i.quantity, price: i.price, isRetail: isRetailItem(i.quantity) }));
     recordOrder({
@@ -402,6 +404,48 @@ export default function CartPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Payment reference — retail only */}
+              <AnimatePresence>
+                {hasRetailItems && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="mt-3"
+                  >
+                    <div className={`rounded-xl border px-4 py-3 ${touched && missingPaymentRef ? "border-red-500/40 bg-red-500/5" : "border-amber-500/30 bg-amber-500/5"}`}>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-amber-400 mb-2 flex items-center gap-1.5">
+                        <Receipt className="h-3.5 w-3.5" />
+                        Payment Confirmation Required
+                      </p>
+                      <p className="text-[11px] text-gray-400 mb-3 leading-relaxed">
+                        {paymentMethod === "momo"
+                          ? "Pay via MTN MoMo first, then enter your MoMo transaction ID below."
+                          : "Transfer to Equity Bank first, then enter your bank reference number below."}
+                      </p>
+                      <div className="relative">
+                        <Receipt className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${touched && missingPaymentRef ? "text-red-400" : "text-gray-500"}`} />
+                        <input
+                          type="text"
+                          placeholder={paymentMethod === "momo" ? "e.g. 1234567890 (MoMo TxID) *" : "e.g. REF123456 (Bank reference) *"}
+                          value={paymentRef}
+                          onChange={(e) => setPaymentRef(e.target.value)}
+                          className={`w-full bg-white/5 border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none transition-colors ${
+                            touched && missingPaymentRef
+                              ? "border-red-500/50 focus:border-red-500"
+                              : "border-white/10 focus:border-amber-500/50"
+                          }`}
+                        />
+                      </div>
+                      {touched && missingPaymentRef && (
+                        <p className="text-[10px] text-red-400 mt-1.5">⚠ Payment reference is required for retail orders</p>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Customer info */}
@@ -457,9 +501,11 @@ export default function CartPage() {
               Order via WhatsApp
             </button>
 
-            {touched && (missingName || missingLocation) && (
+            {touched && (missingName || missingLocation || missingPaymentRef) && (
               <p className="text-[11px] text-red-400 text-center mt-2 leading-relaxed font-medium">
-                {missingName && missingLocation
+                {missingPaymentRef
+                  ? "⚠ Pay first and enter your payment reference to continue."
+                  : missingName && missingLocation
                   ? "⚠ Please enter your name and select a delivery location."
                   : missingName
                   ? "⚠ Please enter your name to continue."
@@ -520,13 +566,16 @@ export default function CartPage() {
                   <p>  🏢 Bank: Equity Bank</p>
                   <p>  💳 Account: 4003113111925</p>
                   <p>  👤 Ineza Pacifique</p>
-                  <p>  📎 Proof of payment required</p>
+                  {paymentRef && <p>  ✅ Ref: {paymentRef}</p>}
+                  {!paymentRef && hasRetailItems && <p>  📎 Proof of payment required</p>}
                 </>
               ) : (
                 <>
                   <p className="font-bold">💳 Payment via MTN MoMo:</p>
                   <p>  📱 +250 788 628 417</p>
                   <p>  👤 Ineza Pacifique</p>
+                  {paymentRef && <p>  ✅ TxID: {paymentRef}</p>}
+                  {!paymentRef && hasRetailItems && <p>  ⚠ Transaction ID required</p>}
                 </>
               )}
             </div>
