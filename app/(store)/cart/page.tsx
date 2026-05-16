@@ -142,10 +142,9 @@ export default function CartPage() {
           >
             <Info className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-semibold text-amber-300 mb-0.5">Retail pricing applied</p>
               <p className="text-amber-200/80 leading-relaxed">
                 One or more items have a quantity below 5 units. Orders under 5 units are billed at{" "}
-                <span className="font-semibold">retail price (+90% for items under RWF 10,000 · +20% for items RWF 10,000 and above)</span>.
+                <span className="font-semibold">retail price</span>.
                 Retail orders are only available for delivery within{" "}
                 <span className="font-semibold">Kigali</span>, with an additional{" "}
                 <span className="font-semibold">transport fee of RWF 1,000</span>. Order{" "}
