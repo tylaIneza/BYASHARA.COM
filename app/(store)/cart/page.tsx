@@ -568,24 +568,13 @@ export default function CartPage() {
               )}
               <p className="font-bold">💰 Total: {formatCurrency(grandTotal)}</p>
               <p className="mt-1">━━━━━━━━━━━━━━</p>
-              {paymentMethod === "bank" ? (
-                <>
-                  <p className="font-bold">🏦 Payment via Bank Transfer:</p>
-                  <p>  🏢 Bank: Equity Bank</p>
-                  <p>  💳 Account: 4003113111925</p>
-                  <p>  👤 Ineza Pacifique</p>
-                  {paymentRef && <p>  ✅ Paid by: {paymentRef}</p>}
-                  {!paymentRef && hasRetailItems && <p>  ⚠ Payer name required</p>}
-                </>
-              ) : (
-                <>
-                  <p className="font-bold">💳 Payment via MTN MoMo:</p>
-                  <p>  📱 +250 788 628 417</p>
-                  <p>  👤 Ineza Pacifique</p>
-                  {paymentRef && <p>  ✅ Paid by: {paymentRef}</p>}
-                  {!paymentRef && hasRetailItems && <p>  ⚠ Payer name required</p>}
-                </>
-              )}
+              <p className="font-bold">💳 Payment Options:</p>
+              <p>  {paymentMethod === "momo" ? "✅" : "  "} MTN MoMo: +250 788 628 417</p>
+              <p>     👤 Ineza Pacifique</p>
+              <p>  {paymentMethod === "bank" ? "✅" : "  "} Equity Bank: 4003113111925</p>
+              <p>     👤 Ineza Pacifique</p>
+              {paymentRef && <p>  📌 Paid by: {paymentRef} ({paymentMethod === "momo" ? "MoMo" : "Bank"})</p>}
+              {!paymentRef && hasRetailItems && <p>  ⚠ Payer name required</p>}
             </div>
           </div>
         </div>

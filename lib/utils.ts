@@ -79,18 +79,16 @@ export function generateWhatsAppMessage(
     lines.push(`💰 *Total: ${formatCurrency(subtotal)}*`);
   }
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
-  if (paymentMethod === "bank") {
-    lines.push("🏦 *Payment via Bank Transfer:*");
-    lines.push("   🏢 Bank: Equity Bank");
-    lines.push("   💳 Account No: 4003113111925");
-    lines.push("   👤 Name: Ineza Pacifique");
-    if (paymentRef) lines.push(`   ✅ Paid by: ${paymentRef}`);
-    else lines.push("   📎 Please send proof of payment on WhatsApp.");
-  } else {
-    lines.push("💳 *Payment via MTN MoMo:*");
-    lines.push("   📱 Number: +250 788 628 417");
-    lines.push("   👤 Name: Ineza Pacifique");
-    if (paymentRef) lines.push(`   ✅ Paid by: ${paymentRef}`);
+  lines.push("💳 *Payment Options:*");
+  lines.push(`   ${paymentMethod === "momo" ? "✅" : "  "} *MTN MoMo*`);
+  lines.push("      📱 Number: +250 788 628 417");
+  lines.push("      👤 Name: Ineza Pacifique");
+  lines.push(`   ${paymentMethod === "bank" ? "✅" : "  "} *Equity Bank Transfer*`);
+  lines.push("      🏢 Bank: Equity Bank");
+  lines.push("      💳 Account: 4003113111925");
+  lines.push("      👤 Name: Ineza Pacifique");
+  if (paymentRef) {
+    lines.push(`\n   📌 *Paid by:* ${paymentRef} (via ${paymentMethod === "momo" ? "MTN MoMo" : "Bank Transfer"})`);
   }
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   lines.push("📞 Please confirm this order. Thank you!");
