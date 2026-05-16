@@ -141,6 +141,35 @@ model SiteSetting {
   updatedAt DateTime @updatedAt
 }
 
+model ProductView {
+  id          String   @id @default(cuid())
+  productId   String
+  productName String
+  sessionId   String
+  visitorId   String
+  referrer    String?
+  createdAt   DateTime @default(now())
+
+  @@unique([productId, sessionId])
+  @@index([productId])
+  @@index([visitorId])
+  @@index([createdAt])
+}
+
+model ProductEngagement {
+  id          String   @id @default(cuid())
+  productId   String
+  productName String
+  visitorId   String
+  eventType   String
+  value       Int?
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+  @@index([productId, eventType])
+  @@index([createdAt])
+}
+
 model Notification {
   id        String    @id @default(cuid())
   type      NotifType

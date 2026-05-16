@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -10,6 +10,7 @@ import {
   TrendingUp, TrendingDown, BarChart2, Package, Users,
   MessageCircle, MapPin, Star, ShoppingBag, RefreshCw,
   Truck, Clock, CheckCircle2, XCircle, Zap, Award,
+  Flame, Eye, Radio, Activity,
 } from "lucide-react";
 
 /* ── Types ── */
@@ -31,12 +32,30 @@ interface AnalyticsData {
   revenueByMonth: { month: string; revenue: number; orders: number }[];
 }
 
+interface TrendingProduct {
+  productId: string; productName: string; slug: string; imageUrl: string | null;
+  views24h: number; views7d: number; cartAdds: number; waClicks: number;
+  trendScore: number; rank: number;
+}
+
+interface TrendingData {
+  trending: TrendingProduct[];
+  viewsToday: number;
+  uniqueVisitorsToday: number;
+  hourlyViews: { hour: string; views: number }[];
+}
+
 /* ── Helpers ── */
 function fmtRwf(n: number) {
   if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
   return n.toFixed(0);
+}
+
+function fmtNum(n: number) {
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toString();
 }
 
 const STATUS_META: Record<string, { label: string; color: string; icon: React.ElementType }> = {
@@ -51,17 +70,13 @@ const STATUS_META: Record<string, { label: string; color: string; icon: React.El
 const PIE_COLORS = ["#FF6B00","#3B82F6","#10B981","#8B5CF6","#F59E0B","#EC4899","#06B6D4","#F97316","#84CC16","#A78BFA"];
 
 /* ── Sub-components ── */
-function KpiCard({
-  title, value, sub, icon: Icon, colorClass, trend, delay,
-}: {
+function KpiCard({ title, value, sub, icon: Icon, colorClass, trend, delay }: {
   title: string; value: string; sub: string; icon: React.ElementType;
   colorClass: string; trend?: number; delay: number;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
+      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
       className="bg-[#111111] border border-white/10 rounded-2xl p-5 relative overflow-hidden group hover:border-white/20 transition-all"
     >
       <div className={`absolute top-0 right-0 h-24 w-24 rounded-full blur-2xl opacity-10 ${colorClass}`} />
@@ -83,21 +98,22 @@ function KpiCard({
   );
 }
 
-function SectionCard({ title, icon: Icon, children, delay = 0, className = "" }: {
-  title: string; icon: React.ElementType; children: React.ReactNode; delay?: number; className?: string;
+function SectionCard({ title, icon: Icon, children, delay = 0, className = "", badge }: {
+  title: string; icon: React.ElementType; children: React.ReactNode; delay?: number; className?: string; badge?: React.ReactNode;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
+      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
       className={`bg-[#111111] border border-white/10 rounded-2xl p-5 ${className}`}
     >
-      <div className="flex items-center gap-2 mb-5">
-        <div className="h-7 w-7 rounded-lg bg-[#FF6B00]/10 flex items-center justify-center">
-          <Icon className="h-3.5 w-3.5 text-[#FF6B00]" />
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-[#FF6B00]/10 flex items-center justify-center">
+            <Icon className="h-3.5 w-3.5 text-[#FF6B00]" />
+          </div>
+          <h3 className="text-sm font-bold text-white">{title}</h3>
         </div>
-        <h3 className="text-sm font-bold text-white">{title}</h3>
+        {badge}
       </div>
       {children}
     </motion.div>
@@ -117,7 +133,6 @@ function Skeleton({ className = "" }: { className?: string }) {
   return <div className={`bg-white/5 rounded-xl animate-pulse ${className}`} />;
 }
 
-/* ── Custom Tooltip ── */
 function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
@@ -125,33 +140,60 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
       <p className="text-gray-400 mb-1.5">{label}</p>
       {payload.map((p, i) => (
         <p key={i} className="font-bold text-white">
-          {p.name === "revenue" ? `${fmtRwf(p.value)} RWF` : `${p.value} orders`}
+          {p.name === "revenue" ? `${fmtRwf(p.value)} RWF` : p.name === "views" ? `${p.value} views` : `${p.value} orders`}
         </p>
       ))}
     </div>
   );
 }
 
+/* ── Live Pulse dot ── */
+function LiveDot() {
+  return (
+    <span className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+      </span>
+      LIVE
+    </span>
+  );
+}
+
 /* ── Main Page ── */
 export default function AnalyticsPage() {
-  const [data, setData] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData]               = useState<AnalyticsData | null>(null);
+  const [trendData, setTrendData]     = useState<TrendingData | null>(null);
+  const [loading, setLoading]         = useState(true);
+  const [trendLoading, setTrendLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const load = async () => {
+  const loadAnalytics = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/analytics");
-      if (res.ok) {
-        setData(await res.json());
-        setLastUpdated(new Date());
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (res.ok) { setData(await res.json()); setLastUpdated(new Date()); }
+    } finally { setLoading(false); }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  const loadTrending = useCallback(async () => {
+    setTrendLoading(true);
+    try {
+      const res = await fetch("/api/analytics/trending");
+      if (res.ok) setTrendData(await res.json());
+    } finally { setTrendLoading(false); }
+  }, []);
+
+  // Initial load
+  useEffect(() => { loadAnalytics(); loadTrending(); }, [loadAnalytics, loadTrending]);
+
+  // Auto-refresh trending every 30 seconds
+  useEffect(() => {
+    const id = setInterval(() => loadTrending(), 30_000);
+    return () => clearInterval(id);
+  }, [loadTrending]);
+
+  const handleRefresh = () => { loadAnalytics(); loadTrending(); };
 
   return (
     <div className="space-y-6">
@@ -160,19 +202,179 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="text-2xl font-black text-white">Analytics</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {lastUpdated
-              ? `Updated ${lastUpdated.toLocaleTimeString()}`
-              : "Loading live data from database…"}
+            {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString()}` : "Loading live data…"}
           </p>
         </div>
         <button
-          onClick={load}
+          onClick={handleRefresh}
           disabled={loading}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-gray-300 transition-all disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </button>
+      </div>
+
+      {/* ── LIVE PRODUCT ANALYTICS ── */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Radio className="h-4 w-4 text-rose-400" />
+          <h2 className="text-sm font-bold text-white">Live Product Analytics</h2>
+          <LiveDot />
+          <span className="text-[10px] text-gray-600 ml-auto">Auto-refreshes every 30s</span>
+        </div>
+
+        {/* Live KPIs */}
+        {trendLoading && !trendData ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[0,1,2,3].map(i => <Skeleton key={i} className="h-28" />)}
+          </div>
+        ) : trendData && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}
+              className="bg-[#111111] border border-rose-500/20 rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-20 w-20 bg-rose-500 rounded-full blur-2xl opacity-10" />
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-8 w-8 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                  <Eye className="h-4 w-4 text-rose-400" />
+                </div>
+                <LiveDot />
+              </div>
+              <div className="text-2xl font-black text-white">{fmtNum(trendData.viewsToday)}</div>
+              <div className="text-[11px] text-gray-500 mt-0.5">Product views today</div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+              className="bg-[#111111] border border-violet-500/20 rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-20 w-20 bg-violet-500 rounded-full blur-2xl opacity-10" />
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-8 w-8 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                  <Users className="h-4 w-4 text-violet-400" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-white">{fmtNum(trendData.uniqueVisitorsToday)}</div>
+              <div className="text-[11px] text-gray-500 mt-0.5">Unique visitors today</div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="bg-[#111111] border border-amber-500/20 rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-20 w-20 bg-amber-500 rounded-full blur-2xl opacity-10" />
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-8 w-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                  <Flame className="h-4 w-4 text-amber-400" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-white">{trendData.trending.length}</div>
+              <div className="text-[11px] text-gray-500 mt-0.5">Trending products now</div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+              className="bg-[#111111] border border-emerald-500/20 rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 h-20 w-20 bg-emerald-500 rounded-full blur-2xl opacity-10" />
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-8 w-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                  <Activity className="h-4 w-4 text-emerald-400" />
+                </div>
+              </div>
+              <div className="text-2xl font-black text-white">
+                {trendData.hourlyViews.slice(-1)[0]?.views ?? 0}
+              </div>
+              <div className="text-[11px] text-gray-500 mt-0.5">Views this hour</div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Trending products + Hourly chart side by side */}
+        {trendLoading && !trendData ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Skeleton className="h-72" />
+            <Skeleton className="h-72" />
+          </div>
+        ) : trendData && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            {/* Trending leaderboard */}
+            <SectionCard
+              title="Trending Products"
+              icon={Flame}
+              delay={0.2}
+              badge={<LiveDot />}
+            >
+              {trendData.trending.length === 0 ? (
+                <div className="text-center py-8">
+                  <Eye className="h-8 w-8 text-gray-700 mx-auto mb-2" />
+                  <p className="text-xs text-gray-600">No views recorded yet — tracking starts as visitors browse products</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {trendData.trending.slice(0, 8).map((p, i) => {
+                    const max = trendData.trending[0]?.trendScore ?? 1;
+                    const RANK_COLORS = ["#EF4444","#F97316","#F59E0B","#3B82F6","#8B5CF6"];
+                    const rankColor = RANK_COLORS[i] ?? "#6b7280";
+                    return (
+                      <div key={p.productId}>
+                        <div className="flex items-center justify-between mb-1.5 gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-[10px] font-black shrink-0 w-5 text-center" style={{ color: rankColor }}>
+                              #{p.rank}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-xs text-white font-medium truncate">{p.productName}</p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[9px] text-gray-600 flex items-center gap-0.5">
+                                  <Eye className="h-2.5 w-2.5" />{p.views24h} today
+                                </span>
+                                <span className="text-[9px] text-gray-600 flex items-center gap-0.5">
+                                  <ShoppingBag className="h-2.5 w-2.5" />{p.cartAdds} carts
+                                </span>
+                                <span className="text-[9px] text-gray-600 flex items-center gap-0.5">
+                                  <MessageCircle className="h-2.5 w-2.5" />{p.waClicks} WA
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold shrink-0" style={{ color: rankColor }}>
+                            {p.views7d} views/7d
+                          </span>
+                        </div>
+                        <ProgressBar value={p.trendScore} max={max} color={rankColor} />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </SectionCard>
+
+            {/* 24h hourly view chart */}
+            <SectionCard title="Views — Last 24 Hours" icon={Activity} delay={0.25} badge={<LiveDot />}>
+              {trendData.hourlyViews.every(h => h.views === 0) ? (
+                <div className="flex items-center justify-center h-[180px]">
+                  <p className="text-xs text-gray-600">No views tracked yet</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={trendData.hourlyViews} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="viewGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%"  stopColor="#EF4444" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                    <XAxis dataKey="hour" tick={{ fill: "#6b7280", fontSize: 9 }} tickLine={false} axisLine={false} interval={3} />
+                    <YAxis tick={{ fill: "#6b7280", fontSize: 9 }} tickLine={false} axisLine={false} width={25} allowDecimals={false} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Area
+                      type="monotone" dataKey="views" name="views"
+                      stroke="#EF4444" strokeWidth={2} fill="url(#viewGrad)"
+                      dot={false} activeDot={{ r: 4, fill: "#EF4444" }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </SectionCard>
+          </div>
+        )}
       </div>
 
       {/* ── KPI Cards ── */}
@@ -182,46 +384,15 @@ export default function AnalyticsPage() {
         </div>
       ) : data && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard
-            title="Total Revenue"
-            value={`${fmtRwf(data.revenue.total)} RWF`}
-            sub={`Today: ${fmtRwf(data.revenue.today)} RWF`}
-            icon={TrendingUp}
-            colorClass="bg-[#FF6B00] text-[#FF6B00]"
-            trend={data.revenue.growth}
-            delay={0}
-          />
-          <KpiCard
-            title="Total Orders"
-            value={data.orders.total.toString()}
-            sub={`This month: ${data.orders.thisMonth}`}
-            icon={MessageCircle}
-            colorClass="bg-blue-500 text-blue-400"
-            delay={0.05}
-          />
-          <KpiCard
-            title="Total Customers"
-            value={data.customers.total.toString()}
-            sub={`New this month: ${data.customers.newThisMonth}`}
-            icon={Users}
-            colorClass="bg-emerald-500 text-emerald-400"
-            delay={0.1}
-          />
-          <KpiCard
-            title="Avg Order Value"
-            value={`${fmtRwf(data.revenue.avgOrderValue)} RWF`}
-            sub={`Delivered: ${data.orders.delivered} orders`}
-            icon={ShoppingBag}
-            colorClass="bg-violet-500 text-violet-400"
-            delay={0.15}
-          />
+          <KpiCard title="Total Revenue" value={`${fmtRwf(data.revenue.total)} RWF`} sub={`Today: ${fmtRwf(data.revenue.today)} RWF`} icon={TrendingUp} colorClass="bg-[#FF6B00] text-[#FF6B00]" trend={data.revenue.growth} delay={0} />
+          <KpiCard title="Total Orders" value={data.orders.total.toString()} sub={`This month: ${data.orders.thisMonth}`} icon={MessageCircle} colorClass="bg-blue-500 text-blue-400" delay={0.05} />
+          <KpiCard title="Total Customers" value={data.customers.total.toString()} sub={`New this month: ${data.customers.newThisMonth}`} icon={Users} colorClass="bg-emerald-500 text-emerald-400" delay={0.1} />
+          <KpiCard title="Avg Order Value" value={`${fmtRwf(data.revenue.avgOrderValue)} RWF`} sub={`Delivered: ${data.orders.delivered} orders`} icon={ShoppingBag} colorClass="bg-violet-500 text-violet-400" delay={0.15} />
         </div>
       )}
 
       {/* ── Revenue Trend (30 days) ── */}
-      {loading ? (
-        <Skeleton className="h-72" />
-      ) : data && (
+      {loading ? <Skeleton className="h-72" /> : data && (
         <SectionCard title="Revenue — Last 30 Days" icon={BarChart2} delay={0.2}>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={data.revenueByDay} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
@@ -232,31 +403,10 @@ export default function AnalyticsPage() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-              <XAxis
-                dataKey="label"
-                tick={{ fill: "#6b7280", fontSize: 10 }}
-                tickLine={false}
-                axisLine={false}
-                interval={4}
-              />
-              <YAxis
-                tick={{ fill: "#6b7280", fontSize: 10 }}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(v) => fmtRwf(v)}
-                width={55}
-              />
+              <XAxis dataKey="label" tick={{ fill: "#6b7280", fontSize: 10 }} tickLine={false} axisLine={false} interval={4} />
+              <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => fmtRwf(v)} width={55} />
               <Tooltip content={<ChartTooltip />} />
-              <Area
-                type="monotone"
-                dataKey="revenue"
-                name="revenue"
-                stroke="#FF6B00"
-                strokeWidth={2}
-                fill="url(#revGrad)"
-                dot={false}
-                activeDot={{ r: 4, fill: "#FF6B00" }}
-              />
+              <Area type="monotone" dataKey="revenue" name="revenue" stroke="#FF6B00" strokeWidth={2} fill="url(#revGrad)" dot={false} activeDot={{ r: 4, fill: "#FF6B00" }} />
             </AreaChart>
           </ResponsiveContainer>
         </SectionCard>
@@ -264,14 +414,9 @@ export default function AnalyticsPage() {
 
       {/* ── Monthly Revenue + Order Status ── */}
       {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><Skeleton className="h-64" /><Skeleton className="h-64" /></div>
       ) : data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-          {/* Monthly comparison */}
           <SectionCard title="Revenue by Month (6 months)" icon={TrendingUp} delay={0.25}>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={data.revenueByMonth} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
@@ -284,7 +429,6 @@ export default function AnalyticsPage() {
             </ResponsiveContainer>
           </SectionCard>
 
-          {/* Order status breakdown */}
           <SectionCard title="Order Status Breakdown" icon={MessageCircle} delay={0.3}>
             <div className="space-y-3">
               {Object.entries(data.orders.byStatus).map(([status, count]) => {
@@ -315,14 +459,9 @@ export default function AnalyticsPage() {
 
       {/* ── Province Revenue + Category Pie ── */}
       {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Skeleton className="h-72" />
-          <Skeleton className="h-72" />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><Skeleton className="h-72" /><Skeleton className="h-72" /></div>
       ) : data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-          {/* Province analytics */}
           <SectionCard title="Revenue by Province / Location" icon={MapPin} delay={0.35}>
             {data.provinces.length === 0 ? (
               <p className="text-xs text-gray-600 text-center py-8">No orders yet</p>
@@ -342,11 +481,7 @@ export default function AnalyticsPage() {
                           <span className="text-xs font-bold text-white">{fmtRwf(p.revenue)} RWF</span>
                         </div>
                       </div>
-                      <ProgressBar
-                        value={p.revenue}
-                        max={max}
-                        color={PIE_COLORS[i % PIE_COLORS.length]}
-                      />
+                      <ProgressBar value={p.revenue} max={max} color={PIE_COLORS[i % PIE_COLORS.length]} />
                     </div>
                   );
                 })}
@@ -354,7 +489,6 @@ export default function AnalyticsPage() {
             )}
           </SectionCard>
 
-          {/* Category distribution */}
           <SectionCard title="Products by Category" icon={Package} delay={0.4}>
             {data.products.byCategory.length === 0 ? (
               <p className="text-xs text-gray-600 text-center py-8">No products yet</p>
@@ -362,31 +496,20 @@ export default function AnalyticsPage() {
               <div className="flex gap-4 items-center">
                 <ResponsiveContainer width={140} height={140}>
                   <PieChart>
-                    <Pie
-                      data={data.products.byCategory.slice(0, 8)}
-                      dataKey="count"
-                      nameKey="category"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={65}
-                      paddingAngle={2}
-                    >
+                    <Pie data={data.products.byCategory.slice(0, 8)} dataKey="count" nameKey="category" cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={2}>
                       {data.products.byCategory.slice(0, 8).map((_, i) => (
                         <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (!active || !payload?.length) return null;
-                        return (
-                          <div className="bg-[#1A1A1A] border border-white/10 rounded-lg p-2 text-xs">
-                            <p className="text-white font-bold">{payload[0].name}</p>
-                            <p className="text-gray-400">{payload[0].value} products</p>
-                          </div>
-                        );
-                      }}
-                    />
+                    <Tooltip content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      return (
+                        <div className="bg-[#1A1A1A] border border-white/10 rounded-lg p-2 text-xs">
+                          <p className="text-white font-bold">{payload[0].name}</p>
+                          <p className="text-gray-400">{payload[0].value} products</p>
+                        </div>
+                      );
+                    }} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex-1 space-y-2 min-w-0">
@@ -404,16 +527,11 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* ── Top Products + Vendor Performance ── */}
+      {/* ── Top Products by Sales + Vendor Performance ── */}
       {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Skeleton className="h-80" />
-          <Skeleton className="h-80" />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><Skeleton className="h-80" /><Skeleton className="h-80" /></div>
       ) : data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-          {/* Top products */}
           <SectionCard title="Top Products by Units Sold" icon={Zap} delay={0.45}>
             {data.products.topBySales.length === 0 ? (
               <p className="text-xs text-gray-600 text-center py-8">No sales recorded yet</p>
@@ -448,13 +566,12 @@ export default function AnalyticsPage() {
             )}
           </SectionCard>
 
-          {/* Vendor performance */}
           <SectionCard title="Vendor Performance" icon={Award} delay={0.5}>
             {data.vendors.length === 0 ? (
               <p className="text-xs text-gray-600 text-center py-8">No vendor data yet</p>
             ) : (
               <div className="space-y-3">
-                {data.vendors.map((v, i) => (
+                {data.vendors.map((v) => (
                   <div key={v.vendor} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
                     <div className="h-8 w-8 rounded-xl bg-[#FF6B00]/10 flex items-center justify-center text-xs font-black text-[#FF6B00] shrink-0">
                       {v.vendor[0]?.toUpperCase()}
@@ -466,8 +583,7 @@ export default function AnalyticsPage() {
                     <div className="flex items-center gap-3 shrink-0 text-right">
                       {v.avgRating > 0 && (
                         <div className="flex items-center gap-0.5 text-[10px] text-amber-400">
-                          <Star className="h-2.5 w-2.5 fill-amber-400" />
-                          {v.avgRating.toFixed(1)}
+                          <Star className="h-2.5 w-2.5 fill-amber-400" />{v.avgRating.toFixed(1)}
                         </div>
                       )}
                       <div>
@@ -484,9 +600,7 @@ export default function AnalyticsPage() {
       )}
 
       {/* ── Top Customers ── */}
-      {loading ? (
-        <Skeleton className="h-64" />
-      ) : data && data.customers.topBySpend.length > 0 && (
+      {loading ? <Skeleton className="h-64" /> : data && data.customers.topBySpend.length > 0 && (
         <SectionCard title="Top Customers by Revenue" icon={Users} delay={0.55}>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -529,17 +643,15 @@ export default function AnalyticsPage() {
       )}
 
       {/* ── Product Stock Summary ── */}
-      {loading ? null : data && (
+      {!loading && data && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           className="grid grid-cols-3 gap-4"
         >
           {[
-            { label: "Total Products", value: data.products.total, color: "text-white", bg: "bg-white/5" },
-            { label: "Active Listings", value: data.products.active, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-            { label: "Out of Stock", value: data.products.outOfStock, color: "text-red-400", bg: "bg-red-400/10" },
+            { label: "Total Products",  value: data.products.total,        color: "text-white",         bg: "bg-white/5" },
+            { label: "Active Listings", value: data.products.active,       color: "text-emerald-400",   bg: "bg-emerald-400/10" },
+            { label: "Out of Stock",    value: data.products.outOfStock,   color: "text-red-400",       bg: "bg-red-400/10" },
           ].map((s) => (
             <div key={s.label} className={`rounded-2xl border border-white/10 p-4 text-center ${s.bg}`}>
               <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>

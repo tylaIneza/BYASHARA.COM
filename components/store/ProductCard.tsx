@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingBag, MessageCircle, Star, Package, Zap } from "lucide-react";
+import { ShoppingBag, MessageCircle, Star, Package, Zap, Flame } from "lucide-react";
 import { formatCurrency, cn } from "@/lib/utils";
 import { useCartStore } from "@/lib/cart-store";
 import { useCurrencyStore } from "@/lib/currency-store";
+import { useTrendingStore } from "@/lib/trending-store";
+import { trackView, trackEngagement } from "@/lib/analytics";
 import toast from "react-hot-toast";
 
 function useFormatPrice() {
@@ -42,42 +44,68 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const [imageError, setImageError] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
   const fmt = useFormatPrice();
+  const { trendingIds, ranks, fetch: fetchTrending } = useTrendingStore();
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const viewTracked = useRef(false);
+  const viewTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Bootstrap trending data once per store mount
+  useEffect(() => { fetchTrending(); }, [fetchTrending]);
+
+  // Intersection Observer: fire view after 2s of continuous visibility
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !viewTracked.current) {
+          viewTimer.current = setTimeout(() => {
+            if (!viewTracked.current) {
+              viewTracked.current = true;
+              trackView(product.id, product.name);
+            }
+          }, 2000);
+        } else {
+          if (viewTimer.current) clearTimeout(viewTimer.current);
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      if (viewTimer.current) clearTimeout(viewTimer.current);
+    };
+  }, [product.id, product.name]);
 
   const price = product.salePrice ?? product.price;
   const discount = product.salePrice
     ? Math.round(((product.price - product.salePrice) / product.price) * 100)
     : 0;
 
+  const isTrending = trendingIds.has(product.id);
+  const rank = ranks.get(product.id);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      price,
-      quantity: qty,
-      imageUrl: product.imageUrl,
-    });
-    toast.success(`${qty}× ${product.name} added to cart`, {
-      icon: "🛒",
-    });
+    addItem({ id: product.id, name: product.name, sku: product.sku, price, quantity: qty, imageUrl: product.imageUrl });
+    trackEngagement(product.id, product.name, "add_to_cart");
+    toast.success(`${qty}× ${product.name} added to cart`, { icon: "🛒" });
   };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({
-      id: product.id,
-      name: product.name,
-      sku: product.sku,
-      price,
-      quantity: qty,
-      imageUrl: product.imageUrl,
-    });
+    addItem({ id: product.id, name: product.name, sku: product.sku, price, quantity: qty, imageUrl: product.imageUrl });
+    trackEngagement(product.id, product.name, "whatsapp_click");
     window.location.href = "/cart";
   };
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04, duration: 0.35 }}
@@ -87,6 +115,12 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
         <div className="relative bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden card-hover cursor-pointer">
           {/* Badges */}
           <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
+            {isTrending && (
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-rose-500 text-white text-[10px] font-bold rounded-full shadow-md">
+                <Flame className="h-2.5 w-2.5" />
+                {rank && rank <= 3 ? `#${rank} TRENDING` : "TRENDING"}
+              </span>
+            )}
             {product.featured && (
               <span className="flex items-center gap-1 px-2 py-0.5 bg-[#FF6B00] text-white text-[10px] font-bold rounded-full">
                 <Zap className="h-2.5 w-2.5" /> FEATURED
