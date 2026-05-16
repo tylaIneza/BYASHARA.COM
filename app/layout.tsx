@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   description:
     "Rwanda & Eastern DRC's #1 wholesale electronics marketplace. Bulk smartphones, laptops, accessories and more. Order via WhatsApp instantly.",
   keywords: ["electronics wholesale", "Rwanda", "DRC", "bulk electronics", "smartphones", "laptops"],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+  },
   openGraph: {
     type: "website",
     siteName: "BYASHARA STORE",
