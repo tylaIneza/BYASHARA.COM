@@ -23,7 +23,7 @@ const PROVINCES = [
 // Retail pricing constants
 const KIGALI_TRANSPORT_FEE = 1000; // RWF
 
-const isRetailItem = (qty: number) => qty === 1;
+const isRetailItem = (qty: number) => qty < 5;
 const retailMarkup = (wholesalePrice: number) => wholesalePrice < 10000 ? 1.9 : 1.2;
 const effectiveUnitPrice = (price: number, qty: number) =>
   isRetailItem(qty) ? Math.ceil(price * retailMarkup(price)) : price;
@@ -144,12 +144,12 @@ export default function CartPage() {
             <div className="text-sm">
               <p className="font-semibold text-amber-300 mb-0.5">Retail pricing applied</p>
               <p className="text-amber-200/80 leading-relaxed">
-                One or more items have a quantity of 1 unit. Single-unit purchases are billed at{" "}
+                One or more items have a quantity below 5 units. Orders under 5 units are billed at{" "}
                 <span className="font-semibold">retail price (+90% for items under RWF 10,000 · +20% for items RWF 10,000 and above)</span>.
                 Retail orders are only available for delivery within{" "}
                 <span className="font-semibold">Kigali</span>, with an additional{" "}
-                <span className="font-semibold">transport fee of RWF 1,000</span>. Increase the
-                quantity to the minimum order quantity for wholesale pricing.
+                <span className="font-semibold">transport fee of RWF 1,000</span>. Order{" "}
+                <span className="font-semibold">5 units or more</span> per item for wholesale pricing.
               </p>
             </div>
           </motion.div>
@@ -169,9 +169,9 @@ export default function CartPage() {
             <div className="text-sm">
               <p className="font-semibold text-red-300 mb-0.5">Retail delivery not available outside Kigali</p>
               <p className="text-red-200/80 leading-relaxed">
-                Single-unit (retail) purchases can only be delivered within Kigali.
+                Retail purchases (under 5 units) can only be delivered within Kigali.
                 Please select <span className="font-semibold">Kigali (City)</span> as your
-                delivery location, or increase your item quantities to qualify for wholesale pricing.
+                delivery location, or order <span className="font-semibold">5 units or more</span> per item to qualify for wholesale pricing.
               </p>
             </div>
           </motion.div>
@@ -523,7 +523,7 @@ export default function CartPage() {
 
             {retailBlockedByLocation && (
               <p className="text-[11px] text-red-400 text-center mt-2 leading-relaxed">
-                Select Kigali (City) to place a retail order, or increase item quantities.
+                Select Kigali (City) to place a retail order, or order 5+ units per item for wholesale.
               </p>
             )}
 
@@ -544,7 +544,7 @@ export default function CartPage() {
               <p>━━━━━━━━━━━━━━</p>
               {customerName && <p>👤 Customer: {customerName}</p>}
               {province && <p>📍 Delivery: {province}</p>}
-              {hasRetailItems && <p>🏪 Pricing: Retail (single-unit)</p>}
+              {hasRetailItems && <p>🏪 Pricing: Retail (under 5 units)</p>}
               <p>━━━━━━━━━━━━━━</p>
               <p>📦 Products:</p>
               {items.slice(0, 3).map((item, i) => {

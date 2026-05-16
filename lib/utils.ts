@@ -54,7 +54,7 @@ export function generateWhatsAppMessage(
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   if (customerName) lines.push(`👤 *Customer:* ${customerName}`);
   if (province) lines.push(`📍 *Delivery:* ${province}`);
-  if (hasRetail) lines.push(`🏪 *Pricing:* Retail (single-unit purchase)`);
+  if (hasRetail) lines.push(`🏪 *Pricing:* Retail (under 5 units)`);
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   lines.push("📦 *Products:*");
 
