@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   ShoppingBag, MessageCircle, Trash2, Plus, Minus, Package,
-  ArrowRight, MapPin, User, Info, AlertTriangle, Truck, Smartphone,
+  ArrowRight, MapPin, User, Info, AlertTriangle, Truck, Smartphone, Building2, CheckCircle2,
 } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { formatCurrency, generateWhatsAppMessage } from "@/lib/utils";
@@ -35,6 +35,7 @@ export default function CartPage() {
   const addOrder = useOrderStore((s) => s.addOrder);
   const [province, setProvince] = useState("");
   const [customerName, setCustomerName] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"momo" | "bank">("momo");
   const [touched, setTouched] = useState(false);
   const [shake, setShake] = useState(false);
 
@@ -68,7 +69,7 @@ export default function CartPage() {
       price: effectiveUnitPrice(i.price, i.quantity),
       isRetail: isRetailItem(i.quantity),
     }));
-    const msg = generateWhatsAppMessage(adjustedItems, province, customerName, transportFee);
+    const msg = generateWhatsAppMessage(adjustedItems, province, customerName, transportFee, paymentMethod);
     window.open(`https://wa.me/${whatsappNumber.replace(/\s/g, "")}?text=${msg}`, "_blank");
     const orderItems = adjustedItems.map((i) => ({ name: i.name, qty: i.quantity, price: i.price, isRetail: isRetailItem(i.quantity) }));
     recordOrder({
@@ -297,29 +298,110 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* MoMo payment info */}
-            <div className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl px-4 py-3 mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Smartphone className="h-3.5 w-3.5 text-[#FFD700]" />
-                <span className="text-[11px] font-bold uppercase tracking-widest text-[#FFD700]">MoMo Payment</span>
+            {/* Payment method selector */}
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Payment Method</p>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button
+                  onClick={() => setPaymentMethod("momo")}
+                  className={`relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border transition-all ${
+                    paymentMethod === "momo"
+                      ? "border-[#FFD700]/60 bg-[#FFD700]/10"
+                      : "border-white/10 bg-white/5 hover:border-white/20"
+                  }`}
+                >
+                  {paymentMethod === "momo" && (
+                    <CheckCircle2 className="absolute top-1.5 right-1.5 h-3.5 w-3.5 text-[#FFD700]" />
+                  )}
+                  <Smartphone className={`h-5 w-5 ${paymentMethod === "momo" ? "text-[#FFD700]" : "text-gray-500"}`} />
+                  <span className={`text-[11px] font-bold ${paymentMethod === "momo" ? "text-[#FFD700]" : "text-gray-400"}`}>MTN MoMo</span>
+                </button>
+                <button
+                  onClick={() => setPaymentMethod("bank")}
+                  className={`relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border transition-all ${
+                    paymentMethod === "bank"
+                      ? "border-emerald-500/60 bg-emerald-500/10"
+                      : "border-white/10 bg-white/5 hover:border-white/20"
+                  }`}
+                >
+                  {paymentMethod === "bank" && (
+                    <CheckCircle2 className="absolute top-1.5 right-1.5 h-3.5 w-3.5 text-emerald-400" />
+                  )}
+                  <Building2 className={`h-5 w-5 ${paymentMethod === "bank" ? "text-emerald-400" : "text-gray-500"}`} />
+                  <span className={`text-[11px] font-bold ${paymentMethod === "bank" ? "text-emerald-400" : "text-gray-400"}`}>Bank Transfer</span>
+                </button>
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-gray-500">Number</span>
-                  <span className="text-sm font-bold text-white tracking-wide">+250 788 628 417</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-gray-500">Name</span>
-                  <span className="text-sm font-semibold text-white">Ineza Pacifique</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-gray-500">Amount</span>
-                  <span className="text-sm font-bold text-[#FFD700]">{formatCurrency(grandTotal)}</span>
-                </div>
-              </div>
-              <p className="text-[10px] text-gray-500 mt-2 leading-relaxed">
-                Send payment via MTN MoMo before confirming your order on WhatsApp.
-              </p>
+
+              {/* Payment details */}
+              <AnimatePresence mode="wait">
+                {paymentMethod === "momo" ? (
+                  <motion.div
+                    key="momo"
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="bg-[#FFD700]/5 border border-[#FFD700]/20 rounded-xl px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Smartphone className="h-3.5 w-3.5 text-[#FFD700]" />
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-[#FFD700]">MTN MoMo</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-gray-500">Number</span>
+                        <span className="text-sm font-bold text-white tracking-wide">+250 788 628 417</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-gray-500">Name</span>
+                        <span className="text-sm font-semibold text-white">Ineza Pacifique</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-gray-500">Amount</span>
+                        <span className="text-sm font-bold text-[#FFD700]">{formatCurrency(grandTotal)}</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-2 leading-relaxed">
+                      Send payment via MTN MoMo before confirming your order on WhatsApp.
+                    </p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="bank"
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Building2 className="h-3.5 w-3.5 text-emerald-400" />
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">Bank Transfer</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-gray-500">Bank</span>
+                        <span className="text-sm font-bold text-white">Equity Bank</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-gray-500">Account No.</span>
+                        <span className="text-sm font-bold text-white tracking-wide">4003113111925</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-gray-500">Account Name</span>
+                        <span className="text-sm font-semibold text-white">Ineza Pacifique</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-gray-500">Amount</span>
+                        <span className="text-sm font-bold text-emerald-400">{formatCurrency(grandTotal)}</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-2 leading-relaxed">
+                      Transfer the exact amount, then send proof of payment on WhatsApp to confirm your order.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Customer info */}
@@ -432,9 +514,21 @@ export default function CartPage() {
               )}
               <p className="font-bold">💰 Total: {formatCurrency(grandTotal)}</p>
               <p className="mt-1">━━━━━━━━━━━━━━</p>
-              <p className="font-bold">💳 Payment via MTN MoMo:</p>
-              <p>  📱 +250 788 628 417</p>
-              <p>  👤 Ineza Pacifique</p>
+              {paymentMethod === "bank" ? (
+                <>
+                  <p className="font-bold">🏦 Payment via Bank Transfer:</p>
+                  <p>  🏢 Bank: Equity Bank</p>
+                  <p>  💳 Account: 4003113111925</p>
+                  <p>  👤 Ineza Pacifique</p>
+                  <p>  📎 Proof of payment required</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-bold">💳 Payment via MTN MoMo:</p>
+                  <p>  📱 +250 788 628 417</p>
+                  <p>  👤 Ineza Pacifique</p>
+                </>
+              )}
             </div>
           </div>
         </div>

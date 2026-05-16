@@ -43,7 +43,8 @@ export function generateWhatsAppMessage(
   items: CartItem[],
   province?: string,
   customerName?: string,
-  transportFee?: number
+  transportFee?: number,
+  paymentMethod: "momo" | "bank" = "momo"
 ): string {
   const hasRetail = items.some((i) => i.isRetail);
   const orderType = hasRetail ? "Retail Order" : "Wholesale Order";
@@ -77,9 +78,17 @@ export function generateWhatsAppMessage(
     lines.push(`💰 *Total: ${formatCurrency(subtotal)}*`);
   }
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
-  lines.push("💳 *Payment via MTN MoMo:*");
-  lines.push("   📱 Number: +250 788 628 417");
-  lines.push("   👤 Name: Ineza Pacifique");
+  if (paymentMethod === "bank") {
+    lines.push("🏦 *Payment via Bank Transfer:*");
+    lines.push("   🏢 Bank: Equity Bank");
+    lines.push("   💳 Account No: 4003113111925");
+    lines.push("   👤 Name: Ineza Pacifique");
+    lines.push("   📎 Please send proof of payment on WhatsApp.");
+  } else {
+    lines.push("💳 *Payment via MTN MoMo:*");
+    lines.push("   📱 Number: +250 788 628 417");
+    lines.push("   👤 Name: Ineza Pacifique");
+  }
   lines.push("━━━━━━━━━━━━━━━━━━━━━");
   lines.push("📞 Please confirm this order. Thank you!");
 
