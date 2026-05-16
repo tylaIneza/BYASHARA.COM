@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -39,8 +39,16 @@ export default function CartPage() {
   const [paymentRef, setPaymentRef] = useState("");
   const [touched, setTouched] = useState(false);
   const [shake, setShake] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState(
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "+250788628417"
+  );
 
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "+250788628417";
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d) => { if (d.whatsappNumber) setWhatsappNumber(d.whatsappNumber); })
+      .catch(() => {});
+  }, []);
 
   // Retail detection
   const hasRetailItems = items.some((i) => isRetailItem(i.quantity));
